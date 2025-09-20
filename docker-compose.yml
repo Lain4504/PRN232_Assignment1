@@ -1,0 +1,14 @@
+
+### docker-compose.yml
+version: '3.8'
+
+services:
+  socialnetwork-api:
+    build: .
+    container_name: socialnetwork-api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    command: ["dotnet", "SocialNetwork.Api.dll"]

@@ -1,6 +1,0 @@
-@PRN232_Assignment1_HostAddress = http://localhost:5291
-
-GET {{PRN232_Assignment1_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
