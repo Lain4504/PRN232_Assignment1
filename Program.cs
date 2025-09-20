@@ -4,6 +4,10 @@ using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.IServices;
 using PRN232_Assignment1.Repositories;
 using PRN232_Assignment1.Services;
+using DotNetEnv;
+
+// Load .env file
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MongoDB Configuration
 var mongoDbSettings = builder.Configuration.GetSection("MongoDB");
-var connectionString = mongoDbSettings["ConnectionString"];
-var databaseName = mongoDbSettings["DatabaseName"];
+var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? mongoDbSettings["ConnectionString"];
+var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME") ?? mongoDbSettings["DatabaseName"];
 
 builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
     new MongoClient(connectionString));
