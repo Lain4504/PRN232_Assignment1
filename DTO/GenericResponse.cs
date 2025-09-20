@@ -52,6 +52,22 @@ namespace PRN232_Assignment1.DTO
                 }
             };
         }
+
+        public static GenericResponse<T> CreateValidationError(Dictionary<string, List<string>> validationErrors, string message = "Validation failed")
+        {
+            return new GenericResponse<T>
+            {
+                Success = false,
+                Message = message,
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                Error = new ErrorDetails
+                {
+                    ErrorCode = "VALIDATION_ERROR",
+                    ErrorMessage = message,
+                    ValidationErrors = validationErrors
+                }
+            };
+        }
     }
     
     public class ErrorDetails

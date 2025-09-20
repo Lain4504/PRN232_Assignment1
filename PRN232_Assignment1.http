@@ -1,6 +1,73 @@
 @PRN232_Assignment1_HostAddress = http://localhost:5291
 
-GET {{PRN232_Assignment1_HostAddress}}/weatherforecast/
+### Test validation - Valid product
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Test Product",
+  "description": "This is a test product description",
+  "price": 99.99,
+  "image": "https://example.com/image.jpg"
+}
+
+### Test validation - Invalid product (missing required fields)
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "Short",
+  "price": -10,
+  "image": "invalid-url"
+}
+
+### Test validation - Invalid product (name too short)
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "A",
+  "description": "This is a valid description that meets the minimum length requirement",
+  "price": 50.00,
+  "image": "https://example.com/valid-image.jpg"
+}
+
+### Test validation - Invalid product (description too short)
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Valid Product Name",
+  "description": "Short",
+  "price": 25.50,
+  "image": "https://example.com/image.jpg"
+}
+
+### Test validation - Invalid product (negative price)
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Valid Product Name",
+  "description": "This is a valid description that meets the minimum length requirement",
+  "price": -5.00,
+  "image": "https://example.com/image.jpg"
+}
+
+### Test validation - Invalid product (invalid URL)
+POST {{PRN232_Assignment1_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Valid Product Name",
+  "description": "This is a valid description that meets the minimum length requirement",
+  "price": 75.00,
+  "image": "not-a-valid-url"
+}
+
+### Get all products
+GET {{PRN232_Assignment1_HostAddress}}/api/products
 Accept: application/json
 
 ###

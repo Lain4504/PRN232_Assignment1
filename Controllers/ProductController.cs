@@ -57,6 +57,23 @@ public class ProductController : ControllerBase
     {
         try
         {
+            // Check if model state is valid
+            if (!ModelState.IsValid)
+            {
+                var validationErrors = new Dictionary<string, List<string>>();
+                foreach (var key in ModelState.Keys)
+                {
+                    var errors = ModelState[key]?.Errors.Select(e => e.ErrorMessage).ToList() ?? new List<string>();
+                    if (errors.Any())
+                    {
+                        validationErrors[key] = errors;
+                    }
+                }
+                
+                var validationResponse = GenericResponse<DTO.Response.ProductResponseDto>.CreateValidationError(validationErrors);
+                return BadRequest(validationResponse);
+            }
+
             var createdProduct = await _productService.AddProductAsync(productDto);
             var response =
                 GenericResponse<DTO.Response.ProductResponseDto>.CreateSuccess(createdProduct,
@@ -76,6 +93,23 @@ public class ProductController : ControllerBase
     {
         try
         {
+            // Check if model state is valid
+            if (!ModelState.IsValid)
+            {
+                var validationErrors = new Dictionary<string, List<string>>();
+                foreach (var key in ModelState.Keys)
+                {
+                    var errors = ModelState[key]?.Errors.Select(e => e.ErrorMessage).ToList() ?? new List<string>();
+                    if (errors.Any())
+                    {
+                        validationErrors[key] = errors;
+                    }
+                }
+                
+                var validationResponse = GenericResponse<DTO.Response.ProductResponseDto>.CreateValidationError(validationErrors);
+                return BadRequest(validationResponse);
+            }
+
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
             if (updatedProduct == null)
             {
