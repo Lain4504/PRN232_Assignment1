@@ -42,4 +42,9 @@ public class ProductRepository : IProductRepository
         var result = await _context.Products.DeleteOneAsync(p => p.Id == id);
         return result.IsAcknowledged && result.DeletedCount > 0;
     }
+
+    public async Task<Product?> FindByIdAsync(string id)
+    {
+        return await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
+    }
 }

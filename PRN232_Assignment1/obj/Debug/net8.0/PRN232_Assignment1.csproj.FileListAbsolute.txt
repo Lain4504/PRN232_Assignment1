@@ -46,3 +46,4 @@ E:\Ky8\PRN232\PRN232_Assignment1\PRN232_Assignment1\obj\Debug\net8.0\refint\PRN2
 E:\Ky8\PRN232\PRN232_Assignment1\PRN232_Assignment1\obj\Debug\net8.0\PRN232_Assignment1.pdb
 E:\Ky8\PRN232\PRN232_Assignment1\PRN232_Assignment1\obj\Debug\net8.0\PRN232_Assignment1.genruntimeconfig.cache
 E:\Ky8\PRN232\PRN232_Assignment1\PRN232_Assignment1\obj\Debug\net8.0\ref\PRN232_Assignment1.dll
+E:\Ky8\PRN232\PRN232_Assignment1\PRN232_Assignment1\obj\Debug\net8.0\PRN232_Assignment1.sourcelink.json

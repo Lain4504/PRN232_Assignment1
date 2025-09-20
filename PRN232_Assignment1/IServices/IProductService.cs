@@ -5,9 +5,9 @@ namespace PRN232_Assignment1.IServices;
 
 public interface IProductService
 {
-    IEnumerable<ProductResponseDto> GetAllProducts();
-    ProductResponseDto GetProductById(int id);
-    void AddProduct(ProductRequestDto productDto);
-    void UpdateProduct(int id, ProductRequestDto productDto);
-    void DeleteProduct(int id);
+    Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync();
+    Task<ProductResponseDto?> GetProductByIdAsync(string id);
+    Task<ProductResponseDto> AddProductAsync(ProductRequestDto productDto);
+    Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto);
+    Task<bool> DeleteProductAsync(string id);
 }
