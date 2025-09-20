@@ -34,6 +34,21 @@ public class ProductService : IProductService
         return productDtos;
     }
 
+    public async Task<PaginatedResponseDto<ProductResponseDto>> GetProductsPaginatedAsync(int page, int pageSize)
+    {
+        var (products, totalCount) = await _productRepository.GetProductsPaginatedAsync(page, pageSize);
+        var productDtos = products.Select(p => new ProductResponseDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Description = p.Description,
+            Price = p.Price,
+            Image = p.Image
+        }).ToList();
+        
+        return new PaginatedResponseDto<ProductResponseDto>(productDtos, page, pageSize, totalCount);
+    }
+
     public async Task<ProductResponseDto?> GetProductByIdAsync(string id)
     {
         var product = await _productRepository.GetProductByIdAsync(id);

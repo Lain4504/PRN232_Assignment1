@@ -19,6 +19,21 @@ public class ProductRepository : IProductRepository
         return await _context.Products.Find(_ => true).ToListAsync();
     }
 
+    public async Task<(IEnumerable<Product> Products, int TotalCount)> GetProductsPaginatedAsync(int page, int pageSize)
+    {
+        var skip = (page - 1) * pageSize;
+        
+        var products = await _context.Products
+            .Find(_ => true)
+            .Skip(skip)
+            .Limit(pageSize)
+            .ToListAsync();
+            
+        var totalCount = await _context.Products.CountDocumentsAsync(_ => true);
+        
+        return (products, (int)totalCount);
+    }
+
     public async Task<Product?> GetProductByIdAsync(string id)
     {
         return await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();

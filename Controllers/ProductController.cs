@@ -17,17 +17,17 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetAllProducts([FromQuery] DTO.Request.PaginationRequestDto paginationRequest)
     {
         try
         {
-            var products = await _productService.GetAllProductsAsync();
-            var response = GenericResponse<IEnumerable<DTO.Response.ProductResponseDto>>.CreateSuccess(products, "Products retrieved successfully");
+            var products = await _productService.GetProductsPaginatedAsync(paginationRequest.Page, paginationRequest.PageSize);
+            var response = GenericResponse<DTO.Response.PaginatedResponseDto<DTO.Response.ProductResponseDto>>.CreateSuccess(products, "Products retrieved successfully");
             return Ok(response);
         }
         catch (Exception ex)
         {
-            var errorResponse = GenericResponse<IEnumerable<DTO.Response.ProductResponseDto>>.CreateError($"Error retrieving products: {ex.Message}");
+            var errorResponse = GenericResponse<DTO.Response.PaginatedResponseDto<DTO.Response.ProductResponseDto>>.CreateError($"Error retrieving products: {ex.Message}");
             return StatusCode(500, errorResponse);
         }
     }
