@@ -3,12 +3,13 @@
 version: '3.8'
 
 services:
-  socialnetwork-api:
+  prn232-assignment1-api:
     build: .
-    container_name: socialnetwork-api
+    container_name: prn232-assignment1-api
     restart: always
     ports:
-      - "5000:5000"
+      - "5291:5291"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-    command: ["dotnet", "SocialNetwork.Api.dll"]
+      - ASPNETCORE_URLS=http://+:5291
+    command: ["dotnet", "PRN232_Assignment1.dll"]
