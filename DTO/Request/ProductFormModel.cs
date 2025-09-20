@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace PRN232_Assignment1.DTO.Request;
 
-public class ProductRequestDto
+public class ProductFormModel
 {
     [Required(ErrorMessage = "Product name is required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Product name must be between 2 and 100 characters")]
@@ -15,4 +15,17 @@ public class ProductRequestDto
     [Required(ErrorMessage = "Product price is required")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0")]
     public decimal Price { get; set; }
+
+    public IFormFile? ImageFile { get; set; }
+
+    // Method to convert to ProductRequestDto
+    public ProductRequestDto ToProductRequestDto()
+    {
+        return new ProductRequestDto
+        {
+            Name = this.Name,
+            Description = this.Description,
+            Price = this.Price
+        };
+    }
 }

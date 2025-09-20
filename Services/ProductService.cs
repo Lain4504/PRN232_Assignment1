@@ -3,16 +3,20 @@ using PRN232_Assignment1.DTO.Request;
 using PRN232_Assignment1.DTO.Response;
 using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.IServices;
+using Microsoft.AspNetCore.Http;
+using SocialNetwork.Core.Modules.Images.Interfaces;
 
 namespace PRN232_Assignment1.Services;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICloudflareService _cloudflareService;
     
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ICloudflareService cloudflareService)
     {
         _productRepository = productRepository;
+        _cloudflareService = cloudflareService;
     }
     
     public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync()
@@ -50,14 +54,22 @@ public class ProductService : IProductService
         return productDto;
     }
 
-    public async Task<ProductResponseDto> AddProductAsync(ProductRequestDto productDto)
+    public async Task<ProductResponseDto> AddProductAsync(ProductRequestDto productDto, IFormFile? imageFile = null)
     {
+        string imageUrl = string.Empty;
+        
+        // Upload image if provided
+        if (imageFile != null)
+        {
+            imageUrl = await _cloudflareService.UploadImage(imageFile);
+        }
+        
         var product = new Models.Product
         {
             Name = productDto.Name,
             Description = productDto.Description,
             Price = productDto.Price,
-            Image = productDto.Image
+            Image = imageUrl
         };
         
         var createdProduct = await _productRepository.AddProductAsync(product);
@@ -73,7 +85,7 @@ public class ProductService : IProductService
         return responseDto;
     }
 
-    public async Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto)
+    public async Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null)
     {
         var existingProduct = await _productRepository.FindByIdAsync(id);
         if (existingProduct == null)
@@ -84,7 +96,13 @@ public class ProductService : IProductService
         existingProduct.Name = productDto.Name;
         existingProduct.Description = productDto.Description;
         existingProduct.Price = productDto.Price;
-        existingProduct.Image = productDto.Image;
+        
+        // Only update image if new image file is provided
+        if (imageFile != null)
+        {
+            existingProduct.Image = await _cloudflareService.UploadImage(imageFile);
+        }
+        // If no new file is provided, keep existing image unchanged
         
         var updatedProduct = await _productRepository.UpdateProductAsync(id, existingProduct);
         if (updatedProduct == null)

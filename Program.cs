@@ -5,6 +5,8 @@ using PRN232_Assignment1.IServices;
 using PRN232_Assignment1.Repositories;
 using PRN232_Assignment1.Services;
 using DotNetEnv;
+using SocialNetwork.Core.Modules.Images.Interfaces;
+using SocialNetwork.Core.Modules.Images.Service;
 
 // Load .env file
 Env.Load();
@@ -17,7 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 var mongoDbSettings = builder.Configuration.GetSection("MongoDB");
 var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? mongoDbSettings["ConnectionString"];
 var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME") ?? mongoDbSettings["DatabaseName"];
-
+builder.Configuration["R2:AccessKey"] = Env.GetString("R2_ACCESS_KEY");
+builder.Configuration["R2:SecretKey"] = Env.GetString("R2_SECRET_KEY");
+builder.Configuration["R2:AccountId"] = Env.GetString("R2_ACCOUNT_ID");
+builder.Configuration["R2:BucketName"] = Env.GetString("R2_BUCKET_NAME");
 builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
     new MongoClient(connectionString));
 
@@ -30,6 +35,7 @@ builder.Services.AddSingleton<ProductContext>(serviceProvider =>
 // Register repositories and services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICloudflareService, CloudflareService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

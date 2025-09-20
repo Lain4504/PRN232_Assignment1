@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PRN232_Assignment1.DTO;
 using PRN232_Assignment1.IServices;
+using Microsoft.AspNetCore.Http;
 
 namespace PRN232_Assignment1.Controllers;
 
@@ -53,7 +54,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddProduct([FromBody] DTO.Request.ProductRequestDto productDto)
+    public async Task<IActionResult> AddProduct([FromForm] DTO.Request.ProductFormModel formModel)
     {
         try
         {
@@ -74,7 +75,8 @@ public class ProductController : ControllerBase
                 return BadRequest(validationResponse);
             }
 
-            var createdProduct = await _productService.AddProductAsync(productDto);
+            var productDto = formModel.ToProductRequestDto();
+            var createdProduct = await _productService.AddProductAsync(productDto, formModel.ImageFile);
             var response =
                 GenericResponse<DTO.Response.ProductResponseDto>.CreateSuccess(createdProduct,
                     "Product created successfully");
@@ -89,7 +91,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct(string id, [FromBody] DTO.Request.ProductRequestDto productDto)
+    public async Task<IActionResult> UpdateProduct(string id, [FromForm] DTO.Request.ProductFormModel formModel)
     {
         try
         {
@@ -110,7 +112,8 @@ public class ProductController : ControllerBase
                 return BadRequest(validationResponse);
             }
 
-            var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
+            var productDto = formModel.ToProductRequestDto();
+            var updatedProduct = await _productService.UpdateProductAsync(id, productDto, formModel.ImageFile);
             if (updatedProduct == null)
             {
                 var notFoundResponse = GenericResponse<DTO.Response.ProductResponseDto>.CreateError("Product not found", System.Net.HttpStatusCode.NotFound, "PRODUCT_NOT_FOUND");
