@@ -4,18 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:staging": "cp env.staging .env.local && next dev --turbopack",
-    "dev:production": "cp env.production .env.local && next dev --turbopack",
     "build": "next build --turbopack",
-    "build:staging": "cp env.staging .env.local && next build --turbopack",
-    "build:production": "cp env.production .env.local && next build --turbopack",
     "start": "next start",
-    "start:staging": "cp env.staging .env.local && next start",
-    "start:production": "cp env.production .env.local && next start",
-    "lint": "eslint",
-    "env:dev": "cp .env .env.local",
-    "env:staging": "cp env.staging .env.local",
-    "env:production": "cp env.production .env.local"
+    "lint": "eslint"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

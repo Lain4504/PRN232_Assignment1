@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, ProductAPI, CreateProductData, UpdateProductData } from '@/lib/api';
+import { Product, ProductAPI } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
+import Image from 'next/image';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -110,7 +111,7 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-none">
                 {error}
               </div>
             )}
@@ -178,10 +179,12 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
                 {/* Image Preview */}
                 {(imagePreview || imageFile) && (
                   <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Preview"
                       className="w-full h-full object-cover"
+                      fill
+                      unoptimized
                     />
                   </div>
                 )}

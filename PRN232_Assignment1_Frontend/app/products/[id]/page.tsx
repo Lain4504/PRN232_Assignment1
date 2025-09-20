@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Product, ProductAPI } from '@/lib/api';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -70,7 +71,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="max-w-7xl mx-auto py-8">
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <Skeleton className="h-10 w-10" />
@@ -92,9 +93,9 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="max-w-7xl mx-auto py-8">
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
           <p className="text-muted-foreground mb-4">{error || 'Product not found'}</p>
           <Button onClick={() => router.push('/')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -106,85 +107,131 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Button variant="outline" onClick={() => router.back()} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">{product.name}</h1>
+              <p className="text-gray-600 mt-1">Chi tiết sản phẩm</p>
+            </div>
+          </div>
 
-        {/* Product Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <div className="text-6xl mb-4">📷</div>
-                    <p>No Image Available</p>
+          {/* Product Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Product Image */}
+            <div className="space-y-4">
+              <Card className="overflow-hidden shadow-lg">
+                <CardContent className="p-0">
+                  <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    {product.image ? (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        width={400}
+                        height={400}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="text-center text-gray-400">
+                        <div className="text-6xl mb-4">📚</div>
+                        <p className="text-lg">Không có hình ảnh</p>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* Product Information */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">{product.name}</CardTitle>
-                  <Badge variant="secondary" className="text-xl font-bold px-4 py-2">
-                    ${product.price.toFixed(2)}
-                  </Badge>
-                </div>
-                <CardDescription>Product Details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Description</h3>
-                  <p className="text-gray-700 leading-relaxed">{product.description}</p>
-                </div>
+            {/* Product Information */}
+            <div className="space-y-6">
+              <Card className="shadow-lg">
+                <CardHeader className="pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-2xl lg:text-3xl text-gray-900">{product.name}</CardTitle>
+                      <CardDescription className="text-gray-600 mt-1">Thông tin chi tiết</CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="text-xl font-bold px-6 py-3">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.price)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-900">Mô tả sản phẩm</h3>
+                    <p className="text-gray-700 leading-relaxed text-base">{product.description}</p>
+                  </div>
 
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Product ID</h3>
-                  <p className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded">
-                    {product.id}
-                  </p>
-                </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-900">Mã sản phẩm</h3>
+                    <p className="text-sm text-gray-500 font-mono bg-gray-100 px-4 py-3 rounded-none border">
+                      {product.id}
+                    </p>
+                  </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowForm(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit Product
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={handleDelete}
-                    className="flex items-center gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete Product
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowForm(true)}
+                      className="flex items-center justify-center gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Chỉnh sửa
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDelete}
+                      className="flex items-center justify-center gap-2 hover:bg-destructive/90 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Xóa sản phẩm
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Additional Info Card */}
+              <Card className="shadow-lg bg-gradient-to-r from-accent/50 to-muted/50 border-border">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Thông tin bổ sung</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center">
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Còn hàng</p>
+                        <p className="text-sm text-gray-600">Sẵn sàng giao hàng</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center">
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Giao hàng nhanh</p>
+                        <p className="text-sm text-gray-600">1-2 ngày làm việc</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

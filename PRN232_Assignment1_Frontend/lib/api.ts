@@ -1,5 +1,5 @@
 // API configuration and types
-import { config, getApiUrl } from './config';
+import { config } from './config';
 
 const API_BASE_URL = config.api.baseUrl;
 

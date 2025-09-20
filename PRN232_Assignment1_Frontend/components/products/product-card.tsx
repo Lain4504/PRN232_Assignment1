@@ -1,6 +1,7 @@
 'use client';
 
 import { Product } from '@/lib/api';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,37 +13,46 @@ interface ProductCardProps {
   onEdit?: (product: Product) => void;
   onDelete?: (id: string) => void;
   showActions?: boolean;
+  clickable?: boolean;
 }
 
-export function ProductCard({ product, onEdit, onDelete, showActions = true }: ProductCardProps) {
-  return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="aspect-video bg-gray-100 flex items-center justify-center">
+export function ProductCard({ product, onEdit, onDelete, showActions = true, clickable = true }: ProductCardProps) {
+  const cardContent = (
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer group">
+      <div className="aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
         {product.image ? (
-          <img
+          <Image
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+            width={320}
+            height={180}
+            unoptimized
           />
         ) : (
           <div className="text-gray-400">No Image</div>
         )}
       </div>
-      <CardHeader>
-        <CardTitle className="line-clamp-1">{product.name}</CardTitle>
-        <CardDescription className="line-clamp-2">
+      <CardHeader className="pb-3">
+        <CardTitle className="line-clamp-1 text-lg group-hover:text-primary transition-colors">
+          {product.name}
+        </CardTitle>
+        <CardDescription className="line-clamp-2 text-sm">
           {product.description}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <div className="flex items-center justify-between">
-          <Badge variant="secondary" className="text-lg font-semibold">
-            ${product.price.toFixed(2)}
+          <Badge variant="secondary" className="text-lg font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+            {new Intl.NumberFormat("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(product.price)}
           </Badge>
           {showActions && (
             <div className="flex gap-2">
-              <Link href={`/products/${product.id}`}>
-                <Button size="sm" variant="outline">
+              <Link href={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
+                <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Eye className="h-4 w-4" />
                 </Button>
               </Link>
@@ -50,7 +60,11 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true }: P
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onEdit(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(product);
+                  }}
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -59,7 +73,11 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true }: P
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => onDelete(product.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(product.id);
+                  }}
+                  className="hover:bg-destructive/90 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -70,4 +88,14 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true }: P
       </CardContent>
     </Card>
   );
+
+  if (clickable && !showActions) {
+    return (
+      <Link href={`/products/${product.id}`} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

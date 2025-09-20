@@ -99,18 +99,21 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Products</h1>
-        {showActions && (
+      {showActions && (
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
+            <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong hệ thống</p>
+          </div>
           <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Add Product
+            Thêm sản phẩm
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-none">
           {error}
         </div>
       )}
@@ -126,12 +129,13 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 showActions={showActions}
+                clickable={!showActions}
                 onEdit={onEdit || handleEdit}
                 onDelete={onDelete || handleDelete}
               />
@@ -140,24 +144,28 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
-              <Button
-                variant="outline"
-                disabled={currentPage === 1}
-                onClick={() => fetchProducts(currentPage - 1)}
-              >
-                Previous
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                disabled={currentPage === totalPages}
-                onClick={() => fetchProducts(currentPage + 1)}
-              >
-                Next
-              </Button>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => fetchProducts(currentPage - 1)}
+                  className="px-4 py-2"
+                >
+                  Trước
+                </Button>
+                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-none">
+                  Trang {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => fetchProducts(currentPage + 1)}
+                  className="px-4 py-2"
+                >
+                  Sau
+                </Button>
+              </div>
             </div>
           )}
         </>
