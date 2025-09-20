@@ -13,6 +13,7 @@ public class CloudflareService : ICloudflareService
     private readonly string _accessKey;
     private readonly string _accessSecret;
     private readonly string _bucketName;
+    private readonly string _publicUrl;
     private const int MaxFileSizeInBytes = 5 * 1024 * 1024; // 5MB
     private static readonly string[] AllowedMimeTypes = { "image/jpeg", "image/png", "image/webp" };
     
@@ -22,6 +23,7 @@ public class CloudflareService : ICloudflareService
         _accessKey = configuration["R2:AccessKey"];
         _accessSecret = configuration["R2:SecretKey"];
         _bucketName = configuration["R2:BucketName"];
+        _publicUrl = configuration["R2:PublicUrl"];
     }
      
     public async Task<string> UploadImage(IFormFile file)
@@ -56,11 +58,14 @@ public class CloudflareService : ICloudflareService
             throw new Exception("Upload to Cloudflare R2 failed");
         }
 
-        return uniqueFileName;
+        return $"{_publicUrl}/{uniqueFileName}";
     }
   
-    public Task DeleteImageAsync(string hashedKey)
+    public Task DeleteImageAsync(string imageUrl)
     {
+        // Extract filename from URL (e.g., "https://pub-f9fde820e02a4976b08ee6caab4a7c92.r2.dev/filename.jpg" -> "filename.jpg")
+        var fileName = imageUrl.Contains('/') ? imageUrl.Split('/').Last() : imageUrl;
+        
         var credentials = new BasicAWSCredentials(_accessKey, _accessSecret);
         var s3Client = new AmazonS3Client(
             credentials,
@@ -73,7 +78,7 @@ public class CloudflareService : ICloudflareService
         var request = new DeleteObjectRequest
         {
             BucketName = _bucketName,
-            Key = hashedKey,
+            Key = fileName,
         };
 
         return s3Client.DeleteObjectAsync(request);

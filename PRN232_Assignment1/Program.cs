@@ -23,6 +23,7 @@ builder.Configuration["R2:AccessKey"] = Env.GetString("R2_ACCESS_KEY");
 builder.Configuration["R2:SecretKey"] = Env.GetString("R2_SECRET_KEY");
 builder.Configuration["R2:AccountId"] = Env.GetString("R2_ACCOUNT_ID");
 builder.Configuration["R2:BucketName"] = Env.GetString("R2_BUCKET_NAME");
+builder.Configuration["R2:PublicUrl"] = Env.GetString("R2_PUBLIC_URL");
 builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
     new MongoClient(connectionString));
 
