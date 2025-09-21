@@ -111,7 +111,7 @@ export default function ProductDetailPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="space-y-4">
             <Button variant="outline" onClick={() => router.back()} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Quay lại
@@ -201,36 +201,6 @@ export default function ProductDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Additional Info Card */}
-              <Card className="shadow-lg bg-gradient-to-r from-accent/50 to-muted/50 border-border">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Thông tin bổ sung</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center">
-                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Còn hàng</p>
-                        <p className="text-sm text-gray-600">Sẵn sàng giao hàng</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center">
-                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Giao hàng nhanh</p>
-                        <p className="text-sm text-gray-600">1-2 ngày làm việc</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
