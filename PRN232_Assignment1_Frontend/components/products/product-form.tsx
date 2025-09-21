@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Upload } from 'lucide-react';
-import Image from 'next/image';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -21,9 +20,9 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
     price: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const isEditing = !!product;
 
@@ -34,7 +33,6 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
         description: product.description,
         price: product.price.toString(),
       });
-      setImagePreview(product.image || '');
     }
   }, [product]);
 
@@ -50,11 +48,29 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        setImageFile(file);
+      }
     }
   };
 
@@ -176,31 +192,59 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
                 Product Image
               </label>
               <div className="space-y-4">
-                {/* Image Preview */}
-                {(imagePreview || imageFile) && (
-                  <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                    <Image
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                      fill
-                      unoptimized
-                    />
-                  </div>
-                )}
-
                 {/* File Input */}
                 <div className="flex items-center justify-center w-full">
                   <label
                     htmlFor="image"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      isDragOver 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : imageFile 
+                        ? 'border-green-500 bg-green-50' 
+                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 10MB)</p>
+                      {imageFile ? (
+                        <>
+                          <div className="w-8 h-8 mb-4 text-green-600 flex items-center justify-center">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <p className="mb-2 text-sm text-green-700 font-medium">
+                            ✓ {imageFile.name}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            {(imageFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </>
+                      ) : isEditing && product?.image ? (
+                        <>
+                          <div className="w-8 h-8 mb-4 text-blue-600 flex items-center justify-center">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <p className="mb-2 text-sm text-blue-700 font-medium">
+                            📷 Ảnh hiện tại đang được sử dụng
+                          </p>
+                          <p className="text-xs text-blue-600">
+                            Chọn ảnh mới để thay thế
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 mb-4 text-gray-500" />
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 10MB)</p>
+                        </>
+                      )}
                     </div>
                     <input
                       id="image"

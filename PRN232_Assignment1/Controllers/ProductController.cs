@@ -32,6 +32,39 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProducts([FromQuery] DTO.Request.ProductSearchRequestDto searchRequest)
+    {
+        try
+        {
+            // Check if model state is valid
+            if (!ModelState.IsValid)
+            {
+                var validationErrors = new Dictionary<string, List<string>>();
+                foreach (var key in ModelState.Keys)
+                {
+                    var errors = ModelState[key]?.Errors.Select(e => e.ErrorMessage).ToList() ?? new List<string>();
+                    if (errors.Any())
+                    {
+                        validationErrors[key] = errors;
+                    }
+                }
+                
+                var validationResponse = GenericResponse<DTO.Response.PaginatedResponseDto<DTO.Response.ProductResponseDto>>.CreateValidationError(validationErrors);
+                return BadRequest(validationResponse);
+            }
+
+            var products = await _productService.SearchProductsAsync(searchRequest);
+            var response = GenericResponse<DTO.Response.PaginatedResponseDto<DTO.Response.ProductResponseDto>>.CreateSuccess(products, "Products searched successfully");
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = GenericResponse<DTO.Response.PaginatedResponseDto<DTO.Response.ProductResponseDto>>.CreateError($"Error searching products: {ex.Message}");
+            return StatusCode(500, errorResponse);
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById(string id)
     {

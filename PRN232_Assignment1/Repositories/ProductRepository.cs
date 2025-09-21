@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using PRN232_Assignment1.Data;
+using PRN232_Assignment1.DTO.Request;
 using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.Models;
 
@@ -31,6 +32,61 @@ public class ProductRepository : IProductRepository
             
         var totalCount = await _context.Products.CountDocumentsAsync(_ => true);
         
+        return (products, (int)totalCount);
+    }
+
+    public async Task<(IEnumerable<Product> Products, int TotalCount)> SearchProductsAsync(
+        string? searchTerm,
+        decimal? minPrice,
+        decimal? maxPrice,
+        SortOrder sortOrder,
+        int page,
+        int pageSize)
+    {
+        var skip = (page - 1) * pageSize;
+        
+        // Build filter
+        var filterBuilder = Builders<Product>.Filter;
+        var filters = new List<FilterDefinition<Product>>();
+
+        // Search term filter (search in name and description)
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var searchFilter = filterBuilder.Or(
+                filterBuilder.Regex(p => p.Name, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                filterBuilder.Regex(p => p.Description, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+            filters.Add(searchFilter);
+        }
+
+        // Price filters
+        if (minPrice.HasValue)
+        {
+            filters.Add(filterBuilder.Gte(p => p.Price, minPrice.Value));
+        }
+        if (maxPrice.HasValue)
+        {
+            filters.Add(filterBuilder.Lte(p => p.Price, maxPrice.Value));
+        }
+
+        // Combine all filters
+        var finalFilter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
+
+        // Build sort by name
+        var sortDefinition = sortOrder == SortOrder.Descending 
+            ? Builders<Product>.Sort.Descending(p => p.Name) 
+            : Builders<Product>.Sort.Ascending(p => p.Name);
+
+        // Execute query
+        var products = await _context.Products
+            .Find(finalFilter)
+            .Sort(sortDefinition)
+            .Skip(skip)
+            .Limit(pageSize)
+            .ToListAsync();
+
+        var totalCount = await _context.Products.CountDocumentsAsync(finalFilter);
+
         return (products, (int)totalCount);
     }
 

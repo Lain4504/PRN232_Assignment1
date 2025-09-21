@@ -46,6 +46,15 @@ export interface UpdateProductData extends CreateProductData {
   id: string;
 }
 
+export interface SearchParams {
+  searchTerm?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  pageSize?: number;
+  sortOrder?: 0 | 1; // 0 = A-Z, 1 = Z-A
+}
+
 // API functions
 export class ProductAPI {
   private static async request<T>(
@@ -131,5 +140,22 @@ export class ProductAPI {
     return this.request<null>(`/products/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Search products
+  static async searchProducts(params: SearchParams = {}): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.searchTerm) searchParams.append('searchTerm', params.searchTerm);
+    if (params.minPrice !== undefined) searchParams.append('minPrice', params.minPrice.toString());
+    if (params.maxPrice !== undefined) searchParams.append('maxPrice', params.maxPrice.toString());
+    if (params.page !== undefined) searchParams.append('page', params.page.toString());
+    if (params.pageSize !== undefined) searchParams.append('pageSize', params.pageSize.toString());
+    if (params.sortOrder !== undefined) searchParams.append('sortOrder', params.sortOrder.toString());
+
+    const queryString = searchParams.toString();
+    const endpoint = `/products/search${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<PaginatedResponse<Product>>(endpoint);
   }
 }

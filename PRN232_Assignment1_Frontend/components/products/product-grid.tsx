@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, ProductAPI, PaginatedResponse } from '@/lib/api';
+import { Product, ProductAPI, PaginatedResponse, SearchParams } from '@/lib/api';
 import { ProductCard } from './product-card';
+import { ProductSearch } from './product-search';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus } from 'lucide-react';
@@ -12,9 +13,10 @@ interface ProductGridProps {
   showActions?: boolean;
   onEdit?: (product: Product) => void;
   onDelete?: (id: string) => void;
+  showSearch?: boolean;
 }
 
-export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGridProps) {
+export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch = true }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +24,24 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
   const [totalPages, setTotalPages] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchParams, setSearchParams] = useState<SearchParams>({});
+  const [isSearching, setIsSearching] = useState(false);
 
-  const fetchProducts = async (page: number = 1) => {
+  const fetchProducts = async (page: number = 1, searchParams?: SearchParams) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await ProductAPI.getProducts(page, 12);
+      
+      let response;
+      if (searchParams && Object.keys(searchParams).length > 0) {
+        // Use search API if search parameters are provided
+        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 12 });
+        setIsSearching(true);
+      } else {
+        // Use regular get products API
+        response = await ProductAPI.getProducts(page, 12);
+        setIsSearching(false);
+      }
       
       if (response.success) {
         const paginatedData = response.data as PaginatedResponse<Product>;
@@ -49,12 +63,10 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    
     try {
       const response = await ProductAPI.deleteProduct(id);
       if (response.success) {
-        await fetchProducts(currentPage);
+        await fetchProducts(currentPage, isSearching ? searchParams : undefined);
       } else {
         setError(response.message || 'Failed to delete product');
       }
@@ -74,6 +86,17 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
     setShowForm(true);
   };
 
+  const handleSearch = (params: SearchParams) => {
+    setSearchParams(params);
+    setCurrentPage(1);
+    fetchProducts(1, params);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchProducts(page, isSearching ? searchParams : undefined);
+  };
+
   if (loading && products.length === 0) {
     return (
       <div className="space-y-4">
@@ -83,7 +106,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
             <Skeleton className="h-10 w-32" />
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
               <Skeleton className="h-48 w-full" />
@@ -112,6 +135,11 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
         </div>
       )}
 
+      {/* Search Component */}
+      {showSearch && (
+        <ProductSearch onSearch={handleSearch} loading={loading} showAdvanced={true} />
+      )}
+
       {error && (
         <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-none">
           {error}
@@ -129,7 +157,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -149,7 +177,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
                 <Button
                   variant="outline"
                   disabled={currentPage === 1}
-                  onClick={() => fetchProducts(currentPage - 1)}
+                  onClick={() => handlePageChange(currentPage - 1)}
                   className="px-4 py-2"
                 >
                   Trước
@@ -160,7 +188,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete }: ProductGr
                 <Button
                   variant="outline"
                   disabled={currentPage === totalPages}
-                  onClick={() => fetchProducts(currentPage + 1)}
+                  onClick={() => handlePageChange(currentPage + 1)}
                   className="px-4 py-2"
                 >
                   Sau

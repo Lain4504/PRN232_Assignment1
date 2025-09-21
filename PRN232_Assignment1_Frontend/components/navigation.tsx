@@ -30,7 +30,7 @@ export function Navigation() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-8">
             <Link href="/" className="text-xl font-bold text-primary hover:text-primary/90 transition-colors">
-              📚 Cửa hàng sách
+              📚 Cửa hàng
             </Link>
             <div className="hidden md:flex items-center space-x-2">
               {navItems.map((item) => {

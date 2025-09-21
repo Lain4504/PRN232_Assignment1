@@ -29,8 +29,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Product } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
+import { DeleteProductDialog } from "@/components/products/delete-product-dialog";
 
-export const columns: ColumnDef<Product>[] = [
+const createColumns = (
+  onEdit?: (product: Product) => void,
+  onDeleteClick?: (product: Product) => void
+): ColumnDef<Product>[] => [
   {
     accessorKey: "image",
     header: "Hình ảnh",
@@ -60,20 +64,32 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
     header: "Tên sách",
-    cell: ({ row }) => (
-      <div className="font-medium max-w-[200px] truncate">
-        {row.getValue("name")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const name = row.getValue("name") as string;
+      return (
+        <div 
+          className="font-medium max-w-[200px] truncate cursor-help"
+          title={name}
+        >
+          {name}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "description",
     header: "Mô tả",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-sm text-muted-foreground">
-        {row.getValue("description")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const description = row.getValue("description") as string;
+      return (
+        <div 
+          className="max-w-[300px] truncate text-sm text-muted-foreground cursor-help"
+          title={description}
+        >
+          {description}
+        </div>
+      );
+    },
     enableSorting: false,
   },
   {
@@ -111,11 +127,7 @@ export const columns: ColumnDef<Product>[] = [
             variant="outline"
             size="sm"
             className="h-8 px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
-            onClick={() => {
-              // This will be handled by the parent component
-              const editEvent = new CustomEvent('editProduct', { detail: product });
-              window.dispatchEvent(editEvent);
-            }}
+            onClick={() => onEdit?.(product)}
           >
             <Edit className="h-4 w-4 mr-1" />
             Sửa
@@ -124,10 +136,7 @@ export const columns: ColumnDef<Product>[] = [
             variant="outline"
             size="sm"
             className="h-8 px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
-            onClick={() => {
-              const deleteEvent = new CustomEvent('deleteProduct', { detail: product.id });
-              window.dispatchEvent(deleteEvent);
-            }}
+            onClick={() => onDeleteClick?.(product)}
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Xóa
@@ -150,6 +159,23 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [productToDelete, setProductToDelete] = React.useState<Product | null>(null);
+
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async (productId: string) => {
+    if (onDelete) {
+      await onDelete(productId);
+    }
+    setShowDeleteDialog(false);
+    setProductToDelete(null);
+  };
+
+  const columns = createColumns(onEdit, handleDeleteClick);
 
   const table = useReactTable({
     data,
@@ -170,28 +196,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
     },
   });
 
-  // Listen for custom events from dropdown menu
-  React.useEffect(() => {
-    const handleEditProduct = (event: CustomEvent) => {
-      if (onEdit) {
-        onEdit(event.detail);
-      }
-    };
-
-    const handleDeleteProduct = (event: CustomEvent) => {
-      if (onDelete) {
-        onDelete(event.detail);
-      }
-    };
-
-    window.addEventListener('editProduct', handleEditProduct as EventListener);
-    window.addEventListener('deleteProduct', handleDeleteProduct as EventListener);
-
-    return () => {
-      window.removeEventListener('editProduct', handleEditProduct as EventListener);
-      window.removeEventListener('deleteProduct', handleDeleteProduct as EventListener);
-    };
-  }, [onEdit, onDelete]);
 
   if (loading) {
     return (
@@ -314,6 +318,17 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
           </Button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteProductDialog
+        product={productToDelete}
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setProductToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

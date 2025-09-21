@@ -8,6 +8,7 @@ public interface IProductService
 {
     Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync();
     Task<PaginatedResponseDto<ProductResponseDto>> GetProductsPaginatedAsync(int page, int pageSize);
+    Task<PaginatedResponseDto<ProductResponseDto>> SearchProductsAsync(ProductSearchRequestDto searchRequest);
     Task<ProductResponseDto?> GetProductByIdAsync(string id);
     Task<ProductResponseDto> AddProductAsync(ProductRequestDto productDto, IFormFile? imageFile = null);
     Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null);

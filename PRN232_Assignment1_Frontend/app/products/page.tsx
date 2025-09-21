@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, ProductAPI, PaginatedResponse } from '@/lib/api';
+import { Product, ProductAPI, PaginatedResponse, SearchParams } from '@/lib/api';
 import { ProductTable } from '@/components/admin/product-table';
+import { ProductSearch } from '@/components/products/product-search';
+import { DeleteProductDialog } from '@/components/products/delete-product-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { ProductForm } from '@/components/products/product-form';
@@ -13,16 +15,32 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [searchParams, setSearchParams] = useState<SearchParams>({});
+  const [isSearching, setIsSearching] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page: number = 1, searchParams?: SearchParams) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await ProductAPI.getProducts(1, 100); // Get all products
+      
+      let response;
+      if (searchParams && Object.keys(searchParams).length > 0) {
+        // Use search API if search parameters are provided
+        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 10 });
+        setIsSearching(true);
+      } else {
+        // Use regular get products API
+        response = await ProductAPI.getProducts(page, 10);
+        setIsSearching(false);
+      }
       
       if (response.success) {
         const paginatedData = response.data as PaginatedResponse<Product>;
         setProducts(paginatedData.data);
+        setCurrentPage(paginatedData.currentPage);
       } else {
         setError(response.message || 'Failed to fetch products');
       }
@@ -38,12 +56,20 @@ export default function ProductsPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
-    
+    const product = products.find(p => p.id === id);
+    if (product) {
+      setProductToDelete(product);
+      setShowDeleteDialog(true);
+    }
+  };
+
+  const handleDeleteConfirm = async (productId: string) => {
     try {
-      const response = await ProductAPI.deleteProduct(id);
+      const response = await ProductAPI.deleteProduct(productId);
       if (response.success) {
-        await fetchProducts();
+        await fetchProducts(currentPage, isSearching ? searchParams : undefined);
+        setShowDeleteDialog(false);
+        setProductToDelete(null);
       } else {
         setError(response.message || 'Failed to delete product');
       }
@@ -55,12 +81,18 @@ export default function ProductsPage() {
   const handleFormSubmit = async () => {
     setShowForm(false);
     setEditingProduct(null);
-    await fetchProducts();
+    await fetchProducts(currentPage, isSearching ? searchParams : undefined);
   };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setShowForm(true);
+  };
+
+  const handleSearch = (params: SearchParams) => {
+    setSearchParams(params);
+    setCurrentPage(1);
+    fetchProducts(1, params);
   };
 
   return (
@@ -76,6 +108,9 @@ export default function ProductsPage() {
             Thêm sản phẩm
           </Button>
         </div>
+
+        {/* Search Component */}
+        <ProductSearch onSearch={handleSearch} loading={loading} showAdvanced={true} />
 
         {error && (
           <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-none">
@@ -101,6 +136,17 @@ export default function ProductsPage() {
             onSubmit={handleFormSubmit}
           />
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <DeleteProductDialog
+          product={productToDelete}
+          isOpen={showDeleteDialog}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setProductToDelete(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+        />
       </div>
     </div>
   );
