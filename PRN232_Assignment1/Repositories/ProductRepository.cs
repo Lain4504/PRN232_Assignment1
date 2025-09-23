@@ -45,49 +45,57 @@ public class ProductRepository : IProductRepository
     {
         var skip = (page - 1) * pageSize;
         
-        // Build filter
-        var filterBuilder = Builders<Product>.Filter;
-        var filters = new List<FilterDefinition<Product>>();
+        // Use in-memory filtering approach for reliable filtering
+        var allProducts = await _context.Products.Find(_ => true).ToListAsync();
+        
+        // Apply filters in memory
+        var filteredProducts = allProducts.AsEnumerable();
+        
+        // Apply price filters
+        if (minPrice.HasValue && maxPrice.HasValue)
+        {
+            filteredProducts = filteredProducts.Where(p => p.Price >= minPrice.Value && p.Price <= maxPrice.Value);
+        }
+        else if (minPrice.HasValue)
+        {
+            filteredProducts = filteredProducts.Where(p => p.Price >= minPrice.Value);
+        }
+        else if (maxPrice.HasValue)
+        {
+            filteredProducts = filteredProducts.Where(p => p.Price <= maxPrice.Value);
+        }
 
-        // Search term filter (search in name and description)
+        // Add search term filter if provided
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var searchFilter = filterBuilder.Or(
-                filterBuilder.Regex(p => p.Name, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
-                filterBuilder.Regex(p => p.Description, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
-            );
-            filters.Add(searchFilter);
+            filteredProducts = filteredProducts.Where(p => 
+                p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
+                p.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
-        // Price filters
-        if (minPrice.HasValue)
+        // Apply sorting
+        if (minPrice.HasValue || maxPrice.HasValue)
         {
-            filters.Add(filterBuilder.Gte(p => p.Price, minPrice.Value));
+            // When filtering by price, sort by price for more logical results
+            filteredProducts = sortOrder == SortOrder.Descending 
+                ? filteredProducts.OrderByDescending(p => p.Price) 
+                : filteredProducts.OrderBy(p => p.Price);
         }
-        if (maxPrice.HasValue)
+        else
         {
-            filters.Add(filterBuilder.Lte(p => p.Price, maxPrice.Value));
+            // Default sort by name when no price filters
+            filteredProducts = sortOrder == SortOrder.Descending 
+                ? filteredProducts.OrderByDescending(p => p.Name) 
+                : filteredProducts.OrderBy(p => p.Name);
         }
 
-        // Combine all filters
-        var finalFilter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
+        // Get total count
+        var totalCount = filteredProducts.Count();
 
-        // Build sort by name
-        var sortDefinition = sortOrder == SortOrder.Descending 
-            ? Builders<Product>.Sort.Descending(p => p.Name) 
-            : Builders<Product>.Sort.Ascending(p => p.Name);
+        // Apply pagination
+        var products = filteredProducts.Skip(skip).Take(pageSize).ToList();
 
-        // Execute query
-        var products = await _context.Products
-            .Find(finalFilter)
-            .Sort(sortDefinition)
-            .Skip(skip)
-            .Limit(pageSize)
-            .ToListAsync();
-
-        var totalCount = await _context.Products.CountDocumentsAsync(finalFilter);
-
-        return (products, (int)totalCount);
+        return (products, totalCount);
     }
 
     public async Task<Product?> GetProductByIdAsync(string id)

@@ -9,14 +9,12 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { Eye, Edit, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -152,9 +150,12 @@ interface ProductTableProps {
   loading?: boolean;
   onEdit?: (product: Product) => void;
   onDelete?: (id: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
-export function ProductTable({ data, loading = false, onEdit, onDelete }: ProductTableProps) {
+export function ProductTable({ data, loading = false, onEdit, onDelete, currentPage = 1, totalPages = 1, onPageChange }: ProductTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -183,7 +184,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -234,16 +234,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Lọc theo tên sách..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -294,30 +284,32 @@ export function ProductTable({ data, loading = false, onEdit, onDelete }: Produc
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} trong{" "}
-          {table.getFilteredRowModel().rows.length} hàng được chọn.
+      {/* Server-side Pagination */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              disabled={currentPage === 1}
+              onClick={() => onPageChange && onPageChange(currentPage - 1)}
+              className="px-4 py-2"
+            >
+              Trước
+            </Button>
+            <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-none">
+              Trang {currentPage} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              disabled={currentPage === totalPages}
+              onClick={() => onPageChange && onPageChange(currentPage + 1)}
+              className="px-4 py-2"
+            >
+              Sau
+            </Button>
+          </div>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Trước
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Sau
-          </Button>
-        </div>
-      </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <DeleteProductDialog

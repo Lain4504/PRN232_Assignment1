@@ -20,6 +20,7 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useState<SearchParams>({});
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchProducts = async (page: number = 1, searchParams?: SearchParams) => {
     try {
@@ -29,11 +30,11 @@ export default function ProductsPage() {
       let response;
       if (searchParams && Object.keys(searchParams).length > 0) {
         // Use search API if search parameters are provided
-        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 10 });
+        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 3 });
         setIsSearching(true);
       } else {
         // Use regular get products API
-        response = await ProductAPI.getProducts(page, 10);
+        response = await ProductAPI.getProducts(page, 3);
         setIsSearching(false);
       }
       
@@ -41,6 +42,7 @@ export default function ProductsPage() {
         const paginatedData = response.data as PaginatedResponse<Product>;
         setProducts(paginatedData.data);
         setCurrentPage(paginatedData.currentPage);
+        setTotalPages(paginatedData.totalPages);
       } else {
         setError(response.message || 'Failed to fetch products');
       }
@@ -95,6 +97,11 @@ export default function ProductsPage() {
     fetchProducts(1, params);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchProducts(page, isSearching ? searchParams : undefined);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -123,6 +130,9 @@ export default function ProductsPage() {
           loading={loading}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
         />
 
         {/* Product Form Modal */}

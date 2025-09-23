@@ -55,8 +55,8 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Search Input */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative sm:flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Nhập tên sản phẩm hoặc mô tả..."
@@ -66,20 +66,22 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
               className="pl-10"
             />
           </div>
-          <Button onClick={handleSearch} disabled={loading} className="px-6">
-            <Search className="h-4 w-4 mr-2" />
-            Tìm kiếm
-          </Button>
-          {showAdvanced && (
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-4"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc
+          <div className="flex gap-2 sm:w-auto w-full">
+            <Button onClick={handleSearch} disabled={loading} className="px-6 w-full sm:w-auto">
+              <Search className="h-4 w-4 mr-2" />
+              Tìm kiếm
             </Button>
-          )}
+            {showAdvanced && (
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="px-4 w-full sm:w-auto"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Bộ lọc
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Advanced Filters */}
@@ -126,18 +128,18 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
           <Button
             variant="outline"
             onClick={handleClear}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <X className="h-4 w-4" />
             Xóa bộ lọc
           </Button>
           {showAdvanced && showFilters && (
-            <Button onClick={handleSearch} disabled={loading}>
+            <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
               Áp dụng bộ lọc
             </Button>
           )}

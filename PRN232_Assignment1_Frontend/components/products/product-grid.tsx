@@ -35,11 +35,11 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
       let response;
       if (searchParams && Object.keys(searchParams).length > 0) {
         // Use search API if search parameters are provided
-        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 12 });
+        response = await ProductAPI.searchProducts({ ...searchParams, page, pageSize: 5 });
         setIsSearching(true);
       } else {
         // Use regular get products API
-        response = await ProductAPI.getProducts(page, 12);
+        response = await ProductAPI.getProducts(page, 5);
         setIsSearching(false);
       }
       

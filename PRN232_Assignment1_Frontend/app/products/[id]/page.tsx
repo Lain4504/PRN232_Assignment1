@@ -187,17 +187,17 @@ export default function ProductDetailPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowForm(true)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 px-3 text-blue-600 border-blue-600 hover:bg-blue-50"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4 mr-1" />
                   Chỉnh sửa
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   onClick={handleDeleteClick}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 px-3 text-red-600 border-red-600 hover:bg-red-50"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 mr-1" />
                   Xóa sản phẩm
                 </Button>
               </div>
