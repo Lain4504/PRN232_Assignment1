@@ -20,6 +20,7 @@ interface ProductCardProps {
 export function ProductCard({ product, onEdit, onDelete, showActions = true, clickable = true }: ProductCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowDeleteDialog(true);
@@ -52,6 +53,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
             </div>
           </div>
         )}
+        
         
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
@@ -105,22 +107,13 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
           
           {/* Price */}
           <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-primary">
+            <span className="text-xl font-bold text-green-600">
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
               }).format(product.price)}
             </span>
           </div>
-          
-          {/* View Details Button */}
-          <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 transition-all duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Xem chi tiết
-          </Button>
         </div>
       </CardContent>
     </Card>
