@@ -11,6 +11,6 @@ public interface IProductService
     Task<PaginatedResponseDto<ProductResponseDto>> SearchProductsAsync(ProductSearchRequestDto searchRequest);
     Task<ProductResponseDto?> GetProductByIdAsync(string id);
     Task<ProductResponseDto> AddProductAsync(ProductRequestDto productDto, IFormFile? imageFile = null);
-    Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null);
+    Task<(ProductResponseDto? Product, bool WasModified)> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null);
     Task<bool> DeleteProductAsync(string id);
 }

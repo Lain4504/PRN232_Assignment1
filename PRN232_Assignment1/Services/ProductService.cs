@@ -122,12 +122,12 @@ public class ProductService : IProductService
         return responseDto;
     }
 
-    public async Task<ProductResponseDto?> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null)
+    public async Task<(ProductResponseDto? Product, bool WasModified)> UpdateProductAsync(string id, ProductRequestDto productDto, IFormFile? imageFile = null)
     {
         var existingProduct = await _productRepository.FindByIdAsync(id);
         if (existingProduct == null)
         {
-            return null;
+            return (null, false); // Product not found
         }
         
         existingProduct.Name = productDto.Name;
@@ -141,10 +141,10 @@ public class ProductService : IProductService
         }
         // If no new file is provided, keep existing image unchanged
         
-        var updatedProduct = await _productRepository.UpdateProductAsync(id, existingProduct);
+        var (updatedProduct, wasModified) = await _productRepository.UpdateProductAsync(id, existingProduct);
         if (updatedProduct == null)
         {
-            return null;
+            return (null, false); // Update failed
         }
         
         var responseDto = new ProductResponseDto
@@ -156,7 +156,7 @@ public class ProductService : IProductService
             Image = updatedProduct.Image
         };
         
-        return responseDto;
+        return (responseDto, wasModified);
     }
 
     public async Task<bool> DeleteProductAsync(string id)

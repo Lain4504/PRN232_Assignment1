@@ -109,11 +109,25 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    public async Task<Product?> UpdateProductAsync(string id, Product product)
+    public async Task<(Product? Product, bool WasModified)> UpdateProductAsync(string id, Product product)
     {
         product.Id = id; // Ensure the ID is set correctly
+        
+        // First check if product exists
+        var existingProduct = await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if (existingProduct == null)
+        {
+            return (null, false); // Product not found
+        }
+        
         var result = await _context.Products.ReplaceOneAsync(p => p.Id == id, product);
-        return result.IsAcknowledged && result.ModifiedCount > 0 ? product : null;
+        if (!result.IsAcknowledged)
+        {
+            return (null, false); // Update failed
+        }
+        
+        // Return the updated product and whether it was actually modified
+        return (product, result.ModifiedCount > 0);
     }
 
     public async Task<bool> DeleteProductAsync(string id)
