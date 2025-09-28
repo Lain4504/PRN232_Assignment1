@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Trash2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface DeleteProductDialogProps {
   product: Product | null;
@@ -35,9 +36,11 @@ export function DeleteProductDialog({
     try {
       setIsDeleting(true);
       await onConfirm(product.id);
+      toast.success('Sản phẩm đã được xóa thành công!');
       onClose();
     } catch (error) {
       console.error('Error deleting product:', error);
+      toast.error('Có lỗi xảy ra khi xóa sản phẩm');
     } finally {
       setIsDeleting(false);
     }

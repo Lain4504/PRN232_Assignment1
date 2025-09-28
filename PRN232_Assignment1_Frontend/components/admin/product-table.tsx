@@ -234,7 +234,8 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
 
   return (
     <div className="w-full">
-      <div className="rounded-md border">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -283,6 +284,91 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => {
+            const product = row.original;
+            return (
+              <div key={row.id} className="bg-white border rounded-lg p-4 shadow-sm">
+                <div className="flex gap-4">
+                  {/* Product Image */}
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    {product.image ? (
+                      <Image
+                        src={product.image}
+                        alt="Product"
+                        className="w-full h-full object-cover"
+                        width={64}
+                        height={64}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate mb-1">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                      {product.description}
+                    </p>
+                    <p className="text-lg font-bold text-green-600 mb-3">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.price)}
+                    </p>
+                    
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="h-8 px-2 text-xs font-medium text-green-600 border-green-600 hover:bg-green-50"
+                      >
+                        <Link href={`/products/${product.id}`}>
+                          <Eye className="h-3 w-3 mr-1" />
+                          Xem
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
+                        onClick={() => onEdit?.(product)}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Sửa
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(product)}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Xóa
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Không có sản phẩm nào.</p>
+          </div>
+        )}
       </div>
       {/* Server-side Pagination */}
       {totalPages > 1 && (

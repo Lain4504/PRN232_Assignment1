@@ -48,8 +48,8 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             <div className="text-center">
-              <div className="text-4xl mb-2">📚</div>
-              <p className="text-sm">Không có hình ảnh</p>
+              <div className="text-2xl sm:text-4xl mb-1 sm:mb-2">📚</div>
+              <p className="text-xs sm:text-sm">Không có hình ảnh</p>
             </div>
           </div>
         )}
@@ -60,11 +60,11 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
         
         {/* Quick actions overlay */}
         {showActions && (
-          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="flex flex-col gap-2">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex flex-col gap-1 sm:gap-2">
               <Link href={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
-                <Button size="sm" variant="secondary" className="h-8 w-8 p-0 shadow-lg">
-                  <Eye className="h-4 w-4" />
+                <Button size="sm" variant="secondary" className="h-6 w-6 sm:h-8 sm:w-8 p-0 shadow-lg">
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </Link>
               {onEdit && (
@@ -75,9 +75,9 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
                     e.stopPropagation();
                     onEdit(product);
                   }}
-                  className="h-8 w-8 p-0 shadow-lg"
+                  className="h-6 w-6 sm:h-8 sm:w-8 p-0 shadow-lg"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               )}
               {onDelete && (
@@ -85,9 +85,9 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
                   size="sm"
                   variant="destructive"
                   onClick={handleDeleteClick}
-                  className="h-8 w-8 p-0 shadow-lg"
+                  className="h-6 w-6 sm:h-8 sm:w-8 p-0 shadow-lg"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               )}
             </div>
@@ -96,18 +96,18 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
       </div>
 
       {/* Product Info */}
-      <CardContent className="p-4">
-        <div className="space-y-3">
+      <CardContent className="p-2 sm:p-3 lg:p-4">
+        <div className="space-y-2 sm:space-y-3">
           {/* Product Name */}
-          <h3 className="font-medium text-gray-900 group-hover:text-primary transition-colors leading-tight h-12 overflow-hidden">
-            <span className="block line-clamp-2">
+          <h3 className="font-medium text-gray-900 group-hover:text-primary transition-colors leading-tight h-8 sm:h-10 lg:h-12 overflow-hidden">
+            <span className="block line-clamp-2 text-xs sm:text-sm lg:text-base">
               {product.name}
             </span>
           </h3>
           
           {/* Price */}
           <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-green-600">
+            <span className="text-sm sm:text-lg lg:text-xl font-bold text-green-600">
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
