@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Product } from '@/lib/api';
 import {
   AlertDialog,
@@ -30,11 +30,13 @@ export function DeleteProductDialog({
 }: DeleteProductDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) {
+  // Reset loading state when dialog is closed
+  const handleClose = () => {
+    if (!isDeleting) {
       setIsDeleting(false);
+      onClose();
     }
-  }, [isOpen]);
+  };
 
   const handleConfirm = async () => {
     if (!product || isDeleting) return;
@@ -42,25 +44,21 @@ export function DeleteProductDialog({
     try {
       setIsDeleting(true);
       await onConfirm(product.id);
+      // Success - dialog will be closed by parent component
       toast.success('Sản phẩm đã được xóa thành công!');
+      // Reset loading state after successful deletion
+      setIsDeleting(false);
     } catch (error) {
       console.error('Error deleting product:', error);
       toast.error('Có lỗi xảy ra khi xóa sản phẩm');
-    } finally {
       setIsDeleting(false);
     }
   };
 
   if (!product) return null;
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open && !isDeleting) {
-      onClose();
-    }
-  };
-
   return (
-    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={handleClose}>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
@@ -86,7 +84,7 @@ export function DeleteProductDialog({
         
         <AlertDialogFooter className="gap-2">
           <AlertDialogCancel 
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isDeleting}
             className="flex-1 sm:flex-none"
           >
