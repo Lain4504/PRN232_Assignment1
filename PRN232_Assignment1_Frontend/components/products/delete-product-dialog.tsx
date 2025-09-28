@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from '@/lib/api';
 import {
   AlertDialog,
@@ -30,8 +30,15 @@ export function DeleteProductDialog({
 }: DeleteProductDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Reset isDeleting state when dialog opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDeleting(false);
+    }
+  }, [isOpen]);
+
   const handleConfirm = async () => {
-    if (!product) return;
+    if (!product || isDeleting) return;
     
     try {
       setIsDeleting(true);
