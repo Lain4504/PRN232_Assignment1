@@ -69,16 +69,17 @@ export default function ProductsPage() {
     try {
       const response = await ProductAPI.deleteProduct(productId);
       if (response.success) {
-        await fetchProducts(currentPage, isSearching ? searchParams : undefined);
+        // Close dialog immediately on success  
         setShowDeleteDialog(false);
         setProductToDelete(null);
+        // Reset to page 1 and refresh the data
+        setCurrentPage(1);
+        await fetchProducts(1, isSearching ? searchParams : undefined);
       } else {
         setError(response.message || 'Failed to delete product');
-        throw new Error(response.message || 'Failed to delete product');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete product');
-      throw err; 
     }
   };
 

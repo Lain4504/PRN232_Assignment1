@@ -27,7 +27,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Product } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
-import { DeleteProductDialog } from "@/components/products/delete-product-dialog";
 
 const createColumns = (
   onEdit?: (product: Product) => void,
@@ -160,20 +159,10 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
-  const [productToDelete, setProductToDelete] = React.useState<Product | null>(null);
-
   const handleDeleteClick = (product: Product) => {
-    setProductToDelete(product);
-    setShowDeleteDialog(true);
-  };
-
-  const handleDeleteConfirm = async (productId: string) => {
     if (onDelete) {
-      await onDelete(productId);
+      onDelete(product.id);
     }
-    setShowDeleteDialog(false);
-    setProductToDelete(null);
   };
 
   const columns = createColumns(onEdit, handleDeleteClick);
@@ -311,17 +300,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Dialog */}
-      <DeleteProductDialog
-        product={productToDelete}
-        isOpen={showDeleteDialog}
-        onClose={() => {
-          setShowDeleteDialog(false);
-          setProductToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-      />
     </div>
   );
 }

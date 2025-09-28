@@ -53,7 +53,10 @@ export default function ProductDetailPage() {
     try {
       const response = await ProductAPI.deleteProduct(productId);
       if (response.success) {
-        router.push('/');
+        // Close dialog first
+        setShowDeleteDialog(false);
+        // Navigate to products page (reset to page 1)
+        router.push('/products');
       } else {
         setError(response.message || 'Failed to delete product');
       }
