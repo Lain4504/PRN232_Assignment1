@@ -53,10 +53,10 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
           Tìm kiếm sản phẩm
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 sm:space-y-4">
+      <CardContent className="space-y-3 sm:space-y-3">
         {/* Search Input */}
-        <div className="space-y-2 sm:space-y-0">
-          <div className="relative">
+        <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Nhập tên sản phẩm hoặc mô tả..."
@@ -66,8 +66,8 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
               className="pl-10 text-sm sm:text-base"
             />
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button onClick={handleSearch} disabled={loading} className="px-4 sm:px-6 w-full sm:w-auto text-sm sm:text-base">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+            <Button onClick={handleSearch} disabled={loading} className="px-4 sm:px-4 w-full sm:w-auto text-sm sm:text-base">
               <Search className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Tìm kiếm</span>
               <span className="sm:hidden">Tìm</span>
@@ -88,7 +88,7 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
 
         {/* Advanced Filters */}
         {showAdvanced && showFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3 p-3 sm:p-3 bg-gray-50 rounded-lg">
             <div>
               <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2 block">
                 Giá tối thiểu (VND)
@@ -132,7 +132,7 @@ export function ProductSearch({ onSearch, loading = false, showAdvanced = true }
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3">
           <Button
             variant="outline"
             onClick={handleClear}

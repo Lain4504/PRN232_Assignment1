@@ -16,7 +16,7 @@ public interface IProductRepository
         int pageSize);
     Task<Product?> GetProductByIdAsync(string id);
     Task<Product> AddProductAsync(Product product);
-    Task<Product?> UpdateProductAsync(string id, Product product);
+    Task<(Product? Product, bool WasModified)> UpdateProductAsync(string id, Product product);
     Task<bool> DeleteProductAsync(string id);
     Task<Product?> FindByIdAsync(string id);
 }

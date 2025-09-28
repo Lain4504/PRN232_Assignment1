@@ -39,7 +39,7 @@ const createColumns = (
     cell: ({ row }) => {
       const image = row.getValue("image") as string;
       return (
-        <div className="w-12 h-12 rounded-none overflow-hidden bg-gray-100">
+        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-none overflow-hidden bg-gray-100">
           {image ? (
             <Image
               src={image}
@@ -66,7 +66,7 @@ const createColumns = (
       const name = row.getValue("name") as string;
       return (
         <div 
-          className="font-medium max-w-[200px] truncate cursor-help"
+          className="font-medium max-w-[120px] sm:max-w-[200px] truncate cursor-help"
           title={name}
         >
           {name}
@@ -81,7 +81,7 @@ const createColumns = (
       const description = row.getValue("description") as string;
       return (
         <div 
-          className="max-w-[300px] truncate text-sm text-muted-foreground cursor-help"
+          className="max-w-[100px] sm:max-w-[300px] truncate text-xs sm:text-sm text-muted-foreground cursor-help"
           title={description}
         >
           {description}
@@ -99,7 +99,7 @@ const createColumns = (
         style: "currency",
         currency: "VND",
       }).format(price);
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium text-xs sm:text-sm">{formatted}</div>;
     },
   },
   {
@@ -109,35 +109,35 @@ const createColumns = (
       const product = row.original;
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Button
             variant="outline"
             size="sm"
             asChild
-            className="h-8 px-2 text-xs font-medium text-green-600 border-green-600 hover:bg-green-50"
+            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-green-600 border-green-600 hover:bg-green-50"
           >
             <Link href={`/products/${product.id}`}>
-              <Eye className="h-4 w-4 mr-1" />
-              Xem
+              <Eye className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Xem</span>
             </Link>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
+            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
             onClick={() => onEdit?.(product)}
           >
-            <Edit className="h-4 w-4 mr-1" />
-            Sửa
+            <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Sửa</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
+            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
             onClick={() => onDeleteClick?.(product)}
           >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Xóa
+            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Xóa</span>
           </Button>
         </div>
       );
@@ -234,15 +234,15 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
 
   return (
     <div className="w-full">
-      {/* Desktop Table View */}
-      <div className="hidden md:block rounded-md border">
+      {/* Table View for all screen sizes */}
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-xs sm:text-sm">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -263,7 +263,7 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-xs sm:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -284,91 +284,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
             )}
           </TableBody>
         </Table>
-      </div>
-
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => {
-            const product = row.original;
-            return (
-              <div key={row.id} className="bg-white border rounded-lg p-4 shadow-sm">
-                <div className="flex gap-4">
-                  {/* Product Image */}
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    {product.image ? (
-                      <Image
-                        src={product.image}
-                        alt="Product"
-                        className="w-full h-full object-cover"
-                        width={64}
-                        height={64}
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate mb-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                      {product.description}
-                    </p>
-                    <p className="text-lg font-bold text-green-600 mb-3">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.price)}
-                    </p>
-                    
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                        className="h-8 px-2 text-xs font-medium text-green-600 border-green-600 hover:bg-green-50"
-                      >
-                        <Link href={`/products/${product.id}`}>
-                          <Eye className="h-3 w-3 mr-1" />
-                          Xem
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
-                        onClick={() => onEdit?.(product)}
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Sửa
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
-                        onClick={() => handleDeleteClick(product)}
-                      >
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Xóa
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Không có sản phẩm nào.</p>
-          </div>
-        )}
       </div>
       {/* Server-side Pagination */}
       {totalPages > 1 && (

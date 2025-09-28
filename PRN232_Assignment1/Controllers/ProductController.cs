@@ -146,13 +146,15 @@ public class ProductController : ControllerBase
             }
 
             var productDto = formModel.ToProductRequestDto();
-            var updatedProduct = await _productService.UpdateProductAsync(id, productDto, formModel.ImageFile);
+            var (updatedProduct, wasModified) = await _productService.UpdateProductAsync(id, productDto, formModel.ImageFile);
             if (updatedProduct == null)
             {
                 var notFoundResponse = GenericResponse<DTO.Response.ProductResponseDto>.CreateError("Product not found", System.Net.HttpStatusCode.NotFound, "PRODUCT_NOT_FOUND");
                 return NotFound(notFoundResponse);
             }
-            var response = GenericResponse<DTO.Response.ProductResponseDto>.CreateSuccess(updatedProduct, "Product updated successfully");
+            
+            var message = wasModified ? "Product updated successfully" : "Product found but no changes were made";
+            var response = GenericResponse<DTO.Response.ProductResponseDto>.CreateSuccess(updatedProduct, message);
             return Ok(response);
         }
         catch (Exception ex)
