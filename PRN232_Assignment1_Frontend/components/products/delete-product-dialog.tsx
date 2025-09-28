@@ -30,7 +30,6 @@ export function DeleteProductDialog({
 }: DeleteProductDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Reset isDeleting state when dialog opens/closes
   useEffect(() => {
     if (!isOpen) {
       setIsDeleting(false);
@@ -44,7 +43,6 @@ export function DeleteProductDialog({
       setIsDeleting(true);
       await onConfirm(product.id);
       toast.success('Sản phẩm đã được xóa thành công!');
-      onClose();
     } catch (error) {
       console.error('Error deleting product:', error);
       toast.error('Có lỗi xảy ra khi xóa sản phẩm');
@@ -55,8 +53,14 @@ export function DeleteProductDialog({
 
   if (!product) return null;
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !isDeleting) {
+      onClose();
+    }
+  };
+
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
           <div className="flex items-center gap-3">

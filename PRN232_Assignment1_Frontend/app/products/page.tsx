@@ -74,9 +74,11 @@ export default function ProductsPage() {
         setProductToDelete(null);
       } else {
         setError(response.message || 'Failed to delete product');
+        throw new Error(response.message || 'Failed to delete product');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete product');
+      throw err; 
     }
   };
 
