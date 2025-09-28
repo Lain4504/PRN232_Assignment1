@@ -26,10 +26,10 @@ export function Navigation() {
 
   return (
     <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm sticky top-0 z-50 relative">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="text-xl font-bold text-primary hover:text-primary/90 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 sm:h-16 items-center justify-between">
+          <div className="flex items-center space-x-4 sm:space-x-8">
+            <Link href="/" className="text-lg sm:text-xl font-bold text-primary hover:text-primary/90 transition-colors">
               📚 Cửa hàng
             </Link>
             <div className="hidden md:flex items-center space-x-2">
@@ -76,7 +76,7 @@ export function Navigation() {
         {/* Mobile menu dropdown */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b shadow-lg z-50">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col space-y-2 py-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;

@@ -101,18 +101,18 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Products</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Products</h1>
           {showActions && (
-            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-8 sm:h-10 w-24 sm:w-32" />
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="space-y-3">
-              <Skeleton className="h-48 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-              <Skeleton className="h-8 w-20" />
+            <div key={i} className="space-y-2 sm:space-y-3">
+              <Skeleton className="h-32 sm:h-40 md:h-48 w-full" />
+              <Skeleton className="h-3 sm:h-4 w-3/4" />
+              <Skeleton className="h-2 sm:h-3 w-1/2" />
+              <Skeleton className="h-6 sm:h-8 w-16 sm:w-20" />
             </div>
           ))}
         </div>
@@ -124,13 +124,14 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
     <div className="space-y-6">
       {showActions && (
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
-            <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong hệ thống</p>
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Quản lý danh sách sản phẩm trong hệ thống</p>
           </div>
-          <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowForm(true)} className="flex items-center gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
-            Thêm sản phẩm
+            <span className="hidden sm:inline">Thêm sản phẩm</span>
+            <span className="sm:hidden">Thêm</span>
           </Button>
         </div>
       )}
@@ -147,17 +148,17 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
       )}
 
       {products.length === 0 && !loading ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">No products found</p>
+        <div className="text-center py-8 sm:py-12">
+          <p className="text-muted-foreground text-base sm:text-lg">No products found</p>
           {showActions && (
-            <Button onClick={() => setShowForm(true)} className="mt-4">
+            <Button onClick={() => setShowForm(true)} className="mt-4 w-full sm:w-auto">
               Add your first product
             </Button>
           )}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.id}

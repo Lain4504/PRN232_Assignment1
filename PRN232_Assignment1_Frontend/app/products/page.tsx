@@ -103,16 +103,17 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
-            <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong hệ thống</p>
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Quản lý danh sách sản phẩm trong hệ thống</p>
           </div>
-          <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowForm(true)} className="flex items-center gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
-            Thêm sản phẩm
+            <span className="hidden sm:inline">Thêm sản phẩm</span>
+            <span className="sm:hidden">Thêm</span>
           </Button>
         </div>
 
