@@ -57,7 +57,7 @@ public class OrderService : IOrderService
         {
             UserId = userId,
             PaymentMethod = request.PaymentMethod,
-            Status = "pending"
+            Status = "pending_payment"
         };
 
         // Calculate total and create order items

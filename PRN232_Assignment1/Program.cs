@@ -2,6 +2,7 @@ using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.IServices;
 using PRN232_Assignment1.Repositories;
 using PRN232_Assignment1.Services;
+using PRN232_Assignment1.Models;
 using DotNetEnv;
 using SocialNetwork.Core.Modules.Images.Interfaces;
 using SocialNetwork.Core.Modules.Images.Service;
@@ -86,6 +87,15 @@ builder.Configuration["R2:AccountId"] = Env.GetString("R2_ACCOUNT_ID");
 builder.Configuration["R2:BucketName"] = Env.GetString("R2_BUCKET_NAME");
 builder.Configuration["R2:PublicUrl"] = Env.GetString("R2_PUBLIC_URL");
 
+// VNPay Configuration
+builder.Services.Configure<VNPayConfig>(options =>
+{
+    options.TmnCode = Env.GetString("VNPAY_TMN_CODE");
+    options.HashSecret = Env.GetString("VNPAY_HASH_SECRET");
+    options.PaymentUrl = Env.GetString("VNPAY_PAYMENT_URL");
+    options.ReturnUrl = Env.GetString("VNPAY_RETURN_URL");
+});
+
 // Register repositories and services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -94,6 +104,7 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IVNPayService, VNPayService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

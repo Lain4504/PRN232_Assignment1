@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CartAPI, OrderAPI, CartItem, CreateOrderRequest } from '@/lib/api';
+import { CartAPI, OrderAPI, PaymentAPI, CartItem, CreateOrderRequest, CreatePaymentUrlRequest } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, CreditCard, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, CreditCard, ShoppingCart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { formatCurrencyVND } from '@/lib/utils';
@@ -19,7 +17,6 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const [paymentMethod, setPaymentMethod] = useState('card');
 
   const fetchCartItems = async () => {
     try {
@@ -56,21 +53,34 @@ export default function CheckoutPage() {
 
     setPlacingOrder(true);
     try {
-      const request: CreateOrderRequest = {
-        paymentMethod: paymentMethod
+      // First create order with pending_payment status
+      const orderRequest: CreateOrderRequest = {
+        paymentMethod: 'vnpay'
       };
 
-      const response = await OrderAPI.createOrder(request);
+      const orderResponse = await OrderAPI.createOrder(orderRequest);
       
-      if (response.success) {
-        toast.success('Order placed successfully!');
-        router.push(`/orders/${response.data.id}`);
+      if (!orderResponse.success) {
+        toast.error(orderResponse.message || 'Failed to create order');
+        return;
+      }
+
+      // Get VNPay payment URL
+      const paymentRequest: CreatePaymentUrlRequest = {
+        orderId: orderResponse.data.id
+      };
+
+      const paymentResponse = await PaymentAPI.createPaymentUrl(paymentRequest);
+      
+      if (paymentResponse.success) {
+        // Redirect to VNPay
+        window.location.href = paymentResponse.data.paymentUrl;
       } else {
-        toast.error(response.message || 'Failed to place order');
+        toast.error(paymentResponse.message || 'Failed to create payment URL');
       }
     } catch (error) {
-      toast.error('Failed to place order');
-      console.error('Place order error:', error);
+      toast.error('Failed to process payment');
+      console.error('Payment error:', error);
     } finally {
       setPlacingOrder(false);
     }
@@ -168,60 +178,30 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="paymentMethod">Payment Method</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="card"
-                        name="paymentMethod"
-                        value="card"
-                        checked={paymentMethod === 'card'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                      />
-                      <Label htmlFor="card">Credit/Debit Card</Label>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <CreditCard className="h-5 w-5 text-white" />
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="paypal"
-                        name="paymentMethod"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                      />
-                      <Label htmlFor="paypal">PayPal</Label>
+                    <div>
+                      <h3 className="text-lg font-medium text-blue-900">VNPay</h3>
+                      <p className="text-sm text-blue-700">
+                        Thanh toán an toàn qua VNPay. Bạn sẽ được chuyển hướng đến trang thanh toán của VNPay.
+                      </p>
                     </div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input
-                    id="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    disabled={paymentMethod !== 'card'}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">Expiry Date</Label>
-                    <Input
-                      id="expiry"
-                      placeholder="MM/YY"
-                      disabled={paymentMethod !== 'card'}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Input
-                      id="cvv"
-                      placeholder="123"
-                      disabled={paymentMethod !== 'card'}
-                    />
-                  </div>
+                
+                <div className="text-sm text-gray-600">
+                  <p className="mb-2">VNPay hỗ trợ các phương thức thanh toán:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Thẻ ATM nội địa</li>
+                    <li>Thẻ Credit/Debit quốc tế</li>
+                    <li>Ví điện tử (Momo, ZaloPay, ViettelPay)</li>
+                    <li>Internet Banking</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
@@ -268,7 +248,14 @@ export default function CheckoutPage() {
                   disabled={placingOrder}
                   className="w-full"
                 >
-                  {placingOrder ? 'Placing Order...' : 'Place Order'}
+                  {placingOrder ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing Payment...
+                    </>
+                  ) : (
+                    'Proceed to VNPay Payment'
+                  )}
                 </Button>
               </CardContent>
             </Card>

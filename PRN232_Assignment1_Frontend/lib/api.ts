@@ -118,6 +118,22 @@ export interface CreateOrderRequest {
   paymentMethod: string;
 }
 
+// VNPay Payment types
+export interface CreatePaymentUrlRequest {
+  orderId: string;
+}
+
+export interface PaymentUrlResponse {
+  paymentUrl: string;
+}
+
+export interface PaymentCallbackResponse {
+  success: boolean;
+  orderId: string;
+  transactionId: string;
+  message: string;
+}
+
 // API functions
 export class ProductAPI {
   private static async request<T>(
@@ -397,6 +413,66 @@ export class OrderAPI {
     return this.request<Order>('/orders', {
       method: 'POST',
       body: JSON.stringify(request),
+    });
+  }
+}
+
+// Payment API
+export class PaymentAPI {
+  private static async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add existing headers from options
+    if (options.headers) {
+      if (options.headers instanceof Headers) {
+        options.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(options.headers)) {
+        options.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        Object.assign(headers, options.headers);
+      }
+    }
+
+    // Add auth header
+    const token = await getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      headers,
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  static async createPaymentUrl(request: CreatePaymentUrlRequest): Promise<ApiResponse<PaymentUrlResponse>> {
+    return this.request<PaymentUrlResponse>('/payment/create-payment-url', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  static async processCallback(queryParams: URLSearchParams): Promise<ApiResponse<PaymentCallbackResponse>> {
+    const queryString = queryParams.toString();
+    return this.request<PaymentCallbackResponse>(`/payment/vnpay-callback?${queryString}`, {
+      method: 'GET',
     });
   }
 }
