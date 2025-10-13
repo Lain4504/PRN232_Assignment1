@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using PRN232_Assignment1.DTO;
 
-namespace PRN232_Assignment1
+namespace PRN232_Assignment1.Middleware
 {
     public class ExceptionHandlerMiddleware
     {

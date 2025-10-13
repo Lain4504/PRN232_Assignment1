@@ -1,25 +1,27 @@
-using System.ComponentModel.DataAnnotations;
+using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
 namespace PRN232_Assignment1.Models;
 
+[Table("cart_items")]
 public class CartItem : BaseModel
 {
-    [Key]
+    [PrimaryKey("id")]
     public string Id { get; set; } = string.Empty;
     
-    [Required]
+    [Column("user_id")]
     public string UserId { get; set; } = string.Empty;
     
-    [Required]
+    [Column("product_id")]
     public string ProductId { get; set; } = string.Empty;
     
-    [Required]
-    [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
+    [Column("quantity")]
     public int Quantity { get; set; } = 1;
     
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
+    [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation property

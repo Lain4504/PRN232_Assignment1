@@ -1,30 +1,30 @@
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Supabase.Postgrest.Models;
 
 namespace PRN232_Assignment1.Models;
 
+[Table("order_items")]
 public class OrderItem : BaseModel
 {
-    [Key]
+    [ForeignKey("id")]
     public string Id { get; set; } = string.Empty;
     
-    [Required]
+    [Column("order_id")]
     public string OrderId { get; set; } = string.Empty;
     
-    [Required]
+    [Column("product_id")]
     public string ProductId { get; set; } = string.Empty;
     
-    [Required]
+    [Column("product_name")]
     public string ProductName { get; set; } = string.Empty;
     
-    [Required]
-    [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0")]
+    [Column("product_price")]
     public decimal ProductPrice { get; set; }
     
-    [Required]
-    [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
+    [Column("quantity")]
     public int Quantity { get; set; }
     
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation properties
