@@ -7,7 +7,6 @@ import { CartSummary } from '@/components/cart/CartSummary';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -103,7 +102,7 @@ export default function CartPage() {
         {items.length === 0 ? (
           <div className="text-center py-12">
             <h2 className="text-xl font-medium text-gray-900 mb-2">Your cart is empty</h2>
-            <p className="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <p className="text-gray-500 mb-6">Looks like you haven&apos;t added any items to your cart yet.</p>
             <Link href="/products">
               <Button>Browse Products</Button>
             </Link>

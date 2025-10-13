@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Package, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -123,7 +122,7 @@ export default function OrdersPage() {
           <div className="text-center py-12">
             <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h2 className="text-xl font-medium text-gray-900 mb-2">No orders yet</h2>
-            <p className="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+            <p className="text-gray-500 mb-6">You haven&apos;t placed any orders yet.</p>
             <Link href="/products">
               <Button>Browse Products</Button>
             </Link>

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Package, Calendar, CreditCard } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
 
 export default function OrderDetailPage() {
   const params = useParams();

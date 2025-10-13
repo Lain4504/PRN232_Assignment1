@@ -17,7 +17,7 @@ export function UserMenu() {
       await signOut();
       toast.success('Signed out successfully');
       router.push('/');
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign out');
     }
   };

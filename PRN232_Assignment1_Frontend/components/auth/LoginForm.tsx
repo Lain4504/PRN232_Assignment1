@@ -29,7 +29,7 @@ export function LoginForm() {
         toast.success('Signed in successfully!');
         router.push('/');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);

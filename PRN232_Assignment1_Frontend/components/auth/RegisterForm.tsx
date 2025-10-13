@@ -41,7 +41,7 @@ export function RegisterForm() {
         toast.success('Account created successfully! Please check your email to verify your account.');
         router.push('/auth/login');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);
