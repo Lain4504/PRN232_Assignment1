@@ -38,7 +38,7 @@ namespace PRN232_Assignment1.DTO
             };
         }
         
-        public static GenericResponse<T> CreateError(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest, string errorCode = null)
+        public static GenericResponse<T> CreateError(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest, string? errorCode = null)
         {
             return new GenericResponse<T>
             {
@@ -73,16 +73,16 @@ namespace PRN232_Assignment1.DTO
     public class ErrorDetails
     {
         [JsonPropertyName("errorCode")]
-        public string ErrorCode { get; set; }
+        public string? ErrorCode { get; set; }
         
         [JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
         
         [JsonPropertyName("stackTrace")]
-        public string StackTrace { get; set; }
+        public string? StackTrace { get; set; }
         
         [JsonPropertyName("validationErrors")]
-        public Dictionary<string, List<string>> ValidationErrors { get; set; }
+        public Dictionary<string, List<string>>? ValidationErrors { get; set; }
     }
     
     public class GenericResponse : GenericResponse<object>

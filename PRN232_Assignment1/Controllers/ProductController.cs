@@ -2,6 +2,7 @@
 using PRN232_Assignment1.DTO;
 using PRN232_Assignment1.IServices;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PRN232_Assignment1.Controllers;
 
@@ -87,6 +88,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddProduct([FromForm] DTO.Request.ProductFormModel formModel)
     {
         try
@@ -124,6 +126,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateProduct(string id, [FromForm] DTO.Request.ProductFormModel formModel)
     {
         try
@@ -165,6 +168,7 @@ public class ProductController : ControllerBase
     }
     
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteProduct(string id)
     {
         try
@@ -176,7 +180,7 @@ public class ProductController : ControllerBase
                     System.Net.HttpStatusCode.NotFound, "PRODUCT_NOT_FOUND");
                 return NotFound(notFoundResponse);
             }
-            var response = GenericResponse<object>.CreateSuccess(null, "Product deleted successfully");
+            var response = GenericResponse<object>.CreateSuccess(null!, "Product deleted successfully");
             return Ok(response);
         } catch (Exception ex)
         {

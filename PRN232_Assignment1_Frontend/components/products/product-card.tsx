@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { DeleteProductDialog } from './delete-product-dialog';
+import { AddToCartButton } from '@/components/cart/AddToCartButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -19,6 +21,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onEdit, onDelete, showActions = true, clickable = true }: ProductCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { user } = useAuth();
 
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -67,7 +70,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
                   <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </Link>
-              {onEdit && (
+              {user && onEdit && (
                 <Button
                   size="sm"
                   variant="secondary"
@@ -80,7 +83,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
                   <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               )}
-              {onDelete && (
+              {user && onDelete && (
                 <Button
                   size="sm"
                   variant="destructive"
@@ -105,14 +108,21 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
             </span>
           </h3>
           
-          {/* Price */}
+          {/* Price and Add to Cart */}
           <div className="flex items-center justify-between">
             <span className="text-sm sm:text-lg lg:text-xl font-bold text-green-600">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(product.price)}
+              ${product.price.toFixed(2)}
             </span>
+          </div>
+          
+          {/* Add to Cart Button */}
+          <div className="pt-2">
+            <AddToCartButton 
+              productId={product.id}
+              productName={product.name}
+              variant="small"
+              className="w-full"
+            />
           </div>
         </div>
       </CardContent>

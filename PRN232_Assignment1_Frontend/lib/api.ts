@@ -1,7 +1,20 @@
 // API configuration and types
 import { config } from './config';
+import { createClient } from '@/lib/supabase/client';
 
 const API_BASE_URL = config.api.baseUrl;
+
+// Helper function to get auth token
+const getAuthToken = async (): Promise<string | null> => {
+  try {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token || null;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return null;
+  }
+};
 
 // Types based on backend DTOs
 export interface Product {
@@ -55,19 +68,80 @@ export interface SearchParams {
   sortOrder?: 0 | 1; // 0 = A-Z, 1 = Z-A
 }
 
+// Cart and Order types
+export interface CartItem {
+  id: string;
+  userId: string;
+  productId: string;
+  productName: string;
+  productDescription: string;
+  productPrice: number;
+  productImage: string;
+  quantity: number;
+  totalPrice: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  totalAmount: number;
+  status: string;
+  paymentMethod?: string;
+  paymentId?: string;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productPrice: number;
+  quantity: number;
+  totalPrice: number;
+  createdAt: string;
+}
+
+export interface AddToCartRequest {
+  productId: string;
+  quantity: number;
+}
+
+export interface UpdateCartItemRequest {
+  quantity: number;
+}
+
+export interface CreateOrderRequest {
+  paymentMethod: string;
+}
+
 // API functions
 export class ProductAPI {
   private static async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    requireAuth: boolean = false
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    // Add auth header if required
+    if (requireAuth) {
+      const token = await getAuthToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       ...options,
     });
 
@@ -81,12 +155,24 @@ export class ProductAPI {
   private static async requestWithFormData<T>(
     endpoint: string,
     formData: FormData,
-    method: 'POST' | 'PUT' = 'POST'
+    method: 'POST' | 'PUT' = 'POST',
+    requireAuth: boolean = false
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     
+    const headers: HeadersInit = {};
+
+    // Add auth header if required
+    if (requireAuth) {
+      const token = await getAuthToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    
     const response = await fetch(url, {
       method,
+      headers,
       body: formData,
     });
 
@@ -118,7 +204,7 @@ export class ProductAPI {
       formData.append('imageFile', productData.imageFile);
     }
 
-    return this.requestWithFormData<Product>('/products', formData, 'POST');
+    return this.requestWithFormData<Product>('/products', formData, 'POST', true);
   }
 
   // Update product
@@ -132,14 +218,14 @@ export class ProductAPI {
       formData.append('imageFile', productData.imageFile);
     }
 
-    return this.requestWithFormData<Product>(`/products/${productData.id}`, formData, 'PUT');
+    return this.requestWithFormData<Product>(`/products/${productData.id}`, formData, 'PUT', true);
   }
 
   // Delete product
   static async deleteProduct(id: string): Promise<ApiResponse<null>> {
     return this.request<null>(`/products/${id}`, {
       method: 'DELETE',
-    });
+    }, true);
   }
 
   // Search products
@@ -157,5 +243,114 @@ export class ProductAPI {
     const endpoint = `/products/search${queryString ? `?${queryString}` : ''}`;
     
     return this.request<PaginatedResponse<Product>>(endpoint);
+  }
+}
+
+// Cart API
+export class CartAPI {
+  private static async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    // Add auth header
+    const token = await getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      headers,
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  static async getCartItems(): Promise<ApiResponse<CartItem[]>> {
+    return this.request<CartItem[]>('/cart');
+  }
+
+  static async addToCart(request: AddToCartRequest): Promise<ApiResponse<CartItem>> {
+    return this.request<CartItem>('/cart', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  static async updateCartItem(productId: string, request: UpdateCartItemRequest): Promise<ApiResponse<CartItem>> {
+    return this.request<CartItem>(`/cart/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(request),
+    });
+  }
+
+  static async removeFromCart(productId: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/cart/${productId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async clearCart(): Promise<ApiResponse<null>> {
+    return this.request<null>('/cart/clear', {
+      method: 'DELETE',
+    });
+  }
+}
+
+// Order API
+export class OrderAPI {
+  private static async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    // Add auth header
+    const token = await getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      headers,
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  static async getOrders(): Promise<ApiResponse<Order[]>> {
+    return this.request<Order[]>('/orders');
+  }
+
+  static async getOrderById(orderId: string): Promise<ApiResponse<Order>> {
+    return this.request<Order>(`/orders/${orderId}`);
+  }
+
+  static async createOrder(request: CreateOrderRequest): Promise<ApiResponse<Order>> {
+    return this.request<Order>('/orders', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
   }
 }
