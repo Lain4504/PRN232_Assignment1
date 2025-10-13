@@ -13,6 +13,6 @@ public class ProductRequestDto
     public string Description { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Product price is required")]
-    [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0")]
-    public decimal Price { get; set; }
+    [Range(0.01f, float.MaxValue, ErrorMessage = "Product price must be greater than 0")]
+    public float Price { get; set; }
 }

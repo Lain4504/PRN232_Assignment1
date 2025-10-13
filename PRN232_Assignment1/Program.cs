@@ -1,5 +1,3 @@
-using MongoDB.Driver;
-using PRN232_Assignment1.Data;
 using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.IServices;
 using PRN232_Assignment1.Repositories;
@@ -7,6 +5,7 @@ using PRN232_Assignment1.Services;
 using DotNetEnv;
 using SocialNetwork.Core.Modules.Images.Interfaces;
 using SocialNetwork.Core.Modules.Images.Service;
+using Supabase;
 
 // Load .env file
 Env.Load();
@@ -15,23 +14,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// MongoDB Configuration
-var mongoDbSettings = builder.Configuration.GetSection("MongoDB");
-var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? mongoDbSettings["ConnectionString"];
-var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME") ?? mongoDbSettings["DatabaseName"];
+// Supabase Configuration
+var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+
 builder.Configuration["R2:AccessKey"] = Env.GetString("R2_ACCESS_KEY");
 builder.Configuration["R2:SecretKey"] = Env.GetString("R2_SECRET_KEY");
 builder.Configuration["R2:AccountId"] = Env.GetString("R2_ACCOUNT_ID");
 builder.Configuration["R2:BucketName"] = Env.GetString("R2_BUCKET_NAME");
 builder.Configuration["R2:PublicUrl"] = Env.GetString("R2_PUBLIC_URL");
-builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
-    new MongoClient(connectionString));
 
-builder.Services.AddSingleton<ProductContext>(serviceProvider =>
-{
-    var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
-    return new ProductContext(mongoClient, databaseName);
-});
+// Register Supabase client
+builder.Services.AddSingleton<Supabase.Client>(serviceProvider => 
+    new Supabase.Client(supabaseUrl!, supabaseKey));
 
 // Register repositories and services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

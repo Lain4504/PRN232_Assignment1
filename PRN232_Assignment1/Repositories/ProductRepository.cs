@@ -1,143 +1,174 @@
-﻿using MongoDB.Driver;
-using PRN232_Assignment1.Data;
-using PRN232_Assignment1.DTO.Request;
+﻿using PRN232_Assignment1.DTO.Request;
 using PRN232_Assignment1.IRepositories;
 using PRN232_Assignment1.Models;
+using Supabase;
+using Supabase.Postgrest;
+using Supabase.Postgrest.Models;
+using Supabase.Postgrest.Responses;
+using static Supabase.Postgrest.Constants;
 
 namespace PRN232_Assignment1.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly ProductContext _context;
+    private readonly Supabase.Client _supabase;
     
-    public ProductRepository(ProductContext context)
+    public ProductRepository(Supabase.Client supabase)
     {
-        _context = context;
+        _supabase = supabase;
     }
 
     public async Task<IEnumerable<Product>> GetAllProductsAsync()
     {
-        return await _context.Products.Find(_ => true).ToListAsync();
+        var result = await _supabase.From<Product>().Get();
+        return result.Models;
     }
 
     public async Task<(IEnumerable<Product> Products, int TotalCount)> GetProductsPaginatedAsync(int page, int pageSize)
     {
-        var skip = (page - 1) * pageSize;
+        var from = (page - 1) * pageSize;
+        var to = from + pageSize - 1;
         
-        var products = await _context.Products
-            .Find(_ => true)
-            .Skip(skip)
-            .Limit(pageSize)
-            .ToListAsync();
+        var result = await _supabase
+            .From<Product>()
+            .Range(from, to)
+            .Get();
             
-        var totalCount = await _context.Products.CountDocumentsAsync(_ => true);
+        var countResult = await _supabase
+            .From<Product>()
+            .Select("*")
+            .Count(CountType.Exact);
         
-        return (products, (int)totalCount);
+        return (result.Models, countResult);
     }
 
     public async Task<(IEnumerable<Product> Products, int TotalCount)> SearchProductsAsync(
         string? searchTerm,
-        decimal? minPrice,
-        decimal? maxPrice,
+        float? minPrice,
+        float? maxPrice,
         SortOrder sortOrder,
         int page,
         int pageSize)
     {
-        var skip = (page - 1) * pageSize;
+        var from = (page - 1) * pageSize;
+        var to = from + pageSize - 1;
         
-        // Use in-memory filtering approach for reliable filtering
-        var allProducts = await _context.Products.Find(_ => true).ToListAsync();
+        // Build query step by step
+        var query = _supabase.From<Product>();
         
-        // Apply filters in memory
-        var filteredProducts = allProducts.AsEnumerable();
-        
-        // Apply price filters
-        if (minPrice.HasValue && maxPrice.HasValue)
-        {
-            filteredProducts = filteredProducts.Where(p => p.Price >= minPrice.Value && p.Price <= maxPrice.Value);
-        }
-        else if (minPrice.HasValue)
-        {
-            filteredProducts = filteredProducts.Where(p => p.Price >= minPrice.Value);
-        }
-        else if (maxPrice.HasValue)
-        {
-            filteredProducts = filteredProducts.Where(p => p.Price <= maxPrice.Value);
-        }
-
-        // Add search term filter if provided
+        // Apply search term filter
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            filteredProducts = filteredProducts.Where(p => 
-                p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
-                p.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            query = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)query.Filter("name", Operator.ILike, $"%{searchTerm}%");
         }
-
+        
+        // Apply price filters
+        if (minPrice.HasValue)
+        {
+            query = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)query.Filter("price", Operator.GreaterThanOrEqual, minPrice.Value);
+        }
+        
+        if (maxPrice.HasValue)
+        {
+            query = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)query.Filter("price", Operator.LessThanOrEqual, maxPrice.Value);
+        }
+        
         // Apply sorting
-        if (minPrice.HasValue || maxPrice.HasValue)
+        var orderColumn = (minPrice.HasValue || maxPrice.HasValue) ? "price" : "name";
+        var ascending = sortOrder == SortOrder.Ascending;
+        
+        var result = await query
+            .Order(orderColumn, ascending ? Ordering.Ascending : Ordering.Descending)
+            .Range(from, to)
+            .Get();
+            
+        // Get count with a separate query
+        var countQuery = _supabase.From<Product>();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            // When filtering by price, sort by price for more logical results
-            filteredProducts = sortOrder == SortOrder.Descending 
-                ? filteredProducts.OrderByDescending(p => p.Price) 
-                : filteredProducts.OrderBy(p => p.Price);
+            countQuery = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)countQuery.Filter("name", Operator.ILike, $"%{searchTerm}%");
         }
-        else
+        if (minPrice.HasValue)
         {
-            // Default sort by name when no price filters
-            filteredProducts = sortOrder == SortOrder.Descending 
-                ? filteredProducts.OrderByDescending(p => p.Name) 
-                : filteredProducts.OrderBy(p => p.Name);
+            countQuery = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)countQuery.Filter("price", Operator.GreaterThanOrEqual, minPrice.Value);
         }
-
-        // Get total count
-        var totalCount = filteredProducts.Count();
-
-        // Apply pagination
-        var products = filteredProducts.Skip(skip).Take(pageSize).ToList();
-
-        return (products, totalCount);
+        if (maxPrice.HasValue)
+        {
+            countQuery = (Supabase.Interfaces.ISupabaseTable<Product, Supabase.Realtime.RealtimeChannel>)countQuery.Filter("price", Operator.LessThanOrEqual, maxPrice.Value);
+        }
+        
+        var countResult = await countQuery
+            .Select("*")
+            .Count(CountType.Exact);
+        
+        return (result.Models, countResult);
     }
 
     public async Task<Product?> GetProductByIdAsync(string id)
     {
-        return await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
+        var result = await _supabase
+            .From<Product>()
+            .Filter("id", Operator.Equals, id)
+            .Single();
+        return result;
     }
 
     public async Task<Product> AddProductAsync(Product product)
     {
-        await _context.Products.InsertOneAsync(product);
-        return product;
+        // Clear ID to let database auto-generate UUID
+        product.Id = string.Empty;
+        
+        var result = await _supabase
+            .From<Product>()
+            .Insert(product);
+        return result.Models.First();
     }
 
     public async Task<(Product? Product, bool WasModified)> UpdateProductAsync(string id, Product product)
     {
         product.Id = id; // Ensure the ID is set correctly
         
-        // First check if product exists
-        var existingProduct = await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
-        if (existingProduct == null)
+        try
         {
-            return (null, false); // Product not found
+            var result = await _supabase
+                .From<Product>()
+                .Filter("id", Operator.Equals, id)
+                .Update(product);
+            
+            if (result.Models.Any())
+            {
+                return (result.Models.First(), true);
+            }
+            return (null, false);
         }
-        
-        var result = await _context.Products.ReplaceOneAsync(p => p.Id == id, product);
-        if (!result.IsAcknowledged)
+        catch
         {
             return (null, false); // Update failed
         }
-        
-        // Return the updated product and whether it was actually modified
-        return (product, result.ModifiedCount > 0);
     }
 
     public async Task<bool> DeleteProductAsync(string id)
     {
-        var result = await _context.Products.DeleteOneAsync(p => p.Id == id);
-        return result.IsAcknowledged && result.DeletedCount > 0;
+        try
+        {
+            await _supabase
+                .From<Product>()
+                .Filter("id", Operator.Equals, id)
+                .Delete();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public async Task<Product?> FindByIdAsync(string id)
     {
-        return await _context.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
+        var result = await _supabase
+            .From<Product>()
+            .Filter("id", Operator.Equals, id)
+            .Single();
+        return result;
     }
 }
