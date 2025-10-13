@@ -5,11 +5,14 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Package, Home, Menu, X } from 'lucide-react';
+import { Package, Home, Menu, X, ShoppingCart } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 export function Navigation() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, loading } = useAuth();
 
   const navItems = [
     {
@@ -19,7 +22,7 @@ export function Navigation() {
     },
     {
       href: '/products',
-      label: 'Quản lý sản phẩm',
+      label: 'Sản phẩm',
       icon: Package,
     },
   ];
@@ -57,19 +60,50 @@ export function Navigation() {
             </div>
           </div>
           
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+          {/* Right side - Auth buttons or user menu */}
+          <div className="flex items-center space-x-2">
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="flex items-center space-x-2">
+                    <Link href="/cart">
+                      <Button variant="ghost" size="sm">
+                        <ShoppingCart className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <UserMenu />
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Link href="/auth/login">
+                      <Button variant="ghost" size="sm">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/auth/register">
+                      <Button size="sm">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
         
