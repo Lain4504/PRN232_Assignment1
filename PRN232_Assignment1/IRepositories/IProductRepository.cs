@@ -9,8 +9,8 @@ public interface IProductRepository
     Task<(IEnumerable<Product> Products, int TotalCount)> GetProductsPaginatedAsync(int page, int pageSize);
     Task<(IEnumerable<Product> Products, int TotalCount)> SearchProductsAsync(
         string? searchTerm,
-        decimal? minPrice,
-        decimal? maxPrice,
+        float? minPrice,
+        float? maxPrice,
         SortOrder sortOrder,
         int page,
         int pageSize);
