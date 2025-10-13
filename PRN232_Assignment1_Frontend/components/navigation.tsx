@@ -2,18 +2,43 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Package, Home, Menu, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { CartAPI } from '@/lib/api';
 
 export function Navigation() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading } = useAuth();
+  const [cartCount, setCartCount] = useState<number>(0);
+
+  const fetchCartCount = async () => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+    try {
+      const res = await CartAPI.getCartCount();
+      if (res.success) setCartCount(res.data || 0);
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [user]);
+
+  useEffect(() => {
+    const handler = () => fetchCartCount();
+    window.addEventListener('cart:updated', handler as EventListener);
+    return () => window.removeEventListener('cart:updated', handler as EventListener);
+  }, []);
 
   const navItems = [
     {
@@ -68,8 +93,13 @@ export function Navigation() {
                 {user ? (
                   <div className="flex items-center space-x-2">
                     <Link href="/cart">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="relative">
                         <ShoppingCart className="h-4 w-4" />
+                        {cartCount > 0 && (
+                          <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
+                            {cartCount}
+                          </span>
+                        )}
                       </Button>
                     </Link>
                     <UserMenu />
@@ -133,9 +163,14 @@ export function Navigation() {
                         user ? (
                           <div className="flex items-center gap-2">
                             <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                              <Button variant="ghost" size="sm" className="w-full justify-start relative">
                                 <ShoppingCart className="h-4 w-4 mr-2" />
                                 Cart
+                                {cartCount > 0 && (
+                                  <span className="absolute top-1 right-2 h-4 min-w-4 px-1 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
+                                    {cartCount}
+                                  </span>
+                                )}
                               </Button>
                             </Link>
                             <UserMenu />

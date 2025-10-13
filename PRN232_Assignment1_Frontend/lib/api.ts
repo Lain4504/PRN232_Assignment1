@@ -334,6 +334,10 @@ export class CartAPI {
       method: 'DELETE',
     });
   }
+
+  static async getCartCount(): Promise<ApiResponse<number>> {
+    return this.request<number>('/cart/count');
+  }
 }
 
 // Order API

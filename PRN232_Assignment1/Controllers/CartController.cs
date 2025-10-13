@@ -156,6 +156,24 @@ public class CartController : ControllerBase
             return StatusCode(500, errorResponse);
         }
     }
+    
+    [HttpGet("count")]
+    public async Task<IActionResult> GetCartItemCount()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var cartItems = await _cartService.GetCartItemsByUserIdAsync(userId);
+            var itemCount = cartItems.Sum(item => item.Quantity);
+            var response = GenericResponse<long>.CreateSuccess(itemCount, "Cart item count retrieved successfully");
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = GenericResponse<long>.CreateError($"Error retrieving cart item count: {ex.Message}");
+            return StatusCode(500, errorResponse);
+        }
+    }
 
     private string GetCurrentUserId()
     {
