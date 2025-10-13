@@ -86,10 +86,10 @@ export default function CheckoutPage() {
                 Back to Cart
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
           </div>
           <div className="text-center py-8">
-            <p>Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function CheckoutPage() {
                 Back to Cart
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
           </div>
           <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md">
             {error}
@@ -128,12 +128,12 @@ export default function CheckoutPage() {
                 Back to Cart
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
           </div>
           <div className="text-center py-12">
             <ShoppingCart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h2 className="text-xl font-medium text-gray-900 mb-2">Your cart is empty</h2>
-            <p className="text-gray-500 mb-6">Add some items to your cart before checking out.</p>
+            <h2 className="text-xl font-medium mb-2">Your cart is empty</h2>
+            <p className="text-muted-foreground mb-6">Add some items to your cart before checking out.</p>
             <Link href="/products">
               <Button>Browse Products</Button>
             </Link>
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
               Back to Cart
             </Button>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -229,16 +229,16 @@ export default function CheckoutPage() {
           {/* Order Summary */}
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="font-medium text-sm">{item.productName}</h4>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                       </div>
                       <span className="font-medium">${item.totalPrice.toFixed(2)}</span>
                     </div>
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-medium">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span className="text-primary">${total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

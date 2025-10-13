@@ -54,7 +54,7 @@ export function CartSummary({ items, onClear }: CartSummaryProps) {
           <CardTitle>Cart Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">Your cart is empty</p>
+          <p className="text-sm text-muted-foreground">Your cart is empty</p>
         </CardContent>
       </Card>
     );
@@ -78,7 +78,7 @@ export function CartSummary({ items, onClear }: CartSummaryProps) {
           <div className="border-t pt-2">
             <div className="flex justify-between font-medium">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span className="text-primary">${total.toFixed(2)}</span>
             </div>
           </div>
         </div>

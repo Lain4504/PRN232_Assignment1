@@ -132,7 +132,7 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
         <CardContent className="px-3 sm:px-6">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-3 sm:px-4 py-2 sm:py-3 rounded-none text-sm sm:text-base">
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-3 sm:px-4 py-2 sm:py-3 rounded-md text-sm sm:text-base">
                 {error}
               </div>
             )}
@@ -170,7 +170,7 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
                 minLength={10}
                 maxLength={500}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none text-sm sm:text-base"
               />
             </div>
 
@@ -208,7 +208,7 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
                         ? 'border-blue-500 bg-blue-50' 
                         : imageFile 
                         ? 'border-green-500 bg-green-50' 
-                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+                        : 'border-border bg-muted hover:bg-accent'
                     }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}

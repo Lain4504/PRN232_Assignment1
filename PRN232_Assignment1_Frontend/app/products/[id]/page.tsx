@@ -46,7 +46,7 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center space-x-4">
             <Link href="/products">
               <Button variant="ghost" size="sm">
@@ -55,8 +55,8 @@ export default function ProductDetailPage() {
               </Button>
             </Link>
           </div>
-          <div className="text-center py-8">
-            <p>Loading product...</p>
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">Loading product...</p>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             <Card>
               <CardContent className="p-0">
-                <div className="relative aspect-square bg-gray-50 overflow-hidden rounded-lg">
+                <div className="relative aspect-square bg-muted overflow-hidden rounded-lg">
                   {product.image ? (
                     <Image
                       src={product.image}
@@ -125,12 +125,12 @@ export default function ProductDetailPage() {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-              <p className="text-lg text-gray-600">{product.description}</p>
+              <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+              <p className="text-lg text-muted-foreground">{product.description}</p>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-green-600">
+              <span className="text-3xl font-bold text-primary">
                 ${product.price.toFixed(2)}
               </span>
             </div>
@@ -145,7 +145,7 @@ export default function ProductDetailPage() {
 
             <div className="border-t pt-6">
               <h3 className="text-lg font-medium mb-4">Product Details</h3>
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex justify-between">
                   <span>Product ID:</span>
                   <span className="font-mono">{product.id}</span>

@@ -62,9 +62,9 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* Product Image */}
-          <div className="relative w-16 h-16 flex-shrink-0">
+          <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
             {item.productImage ? (
               <Image
                 src={item.productImage}
@@ -73,8 +73,8 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
                 className="object-cover rounded-md"
               />
             ) : (
-              <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
-                <span className="text-gray-400 text-xs">No image</span>
+              <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
+                <span className="text-muted-foreground text-xs">No image</span>
               </div>
             )}
           </div>
@@ -82,12 +82,12 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
           {/* Product Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-sm truncate">{item.productName}</h3>
-            <p className="text-xs text-gray-500 truncate">{item.productDescription}</p>
+            <p className="text-xs text-muted-foreground truncate">{item.productDescription}</p>
             <p className="text-sm font-medium">${item.productPrice.toFixed(2)}</p>
           </div>
 
           {/* Quantity Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -111,7 +111,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
 
           {/* Total Price */}
           <div className="text-right">
-            <p className="text-sm font-medium">${item.totalPrice.toFixed(2)}</p>
+            <p className="text-sm font-medium text-primary">${item.totalPrice.toFixed(2)}</p>
           </div>
 
           {/* Remove Button */}
@@ -120,7 +120,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
             variant="ghost"
             onClick={handleRemove}
             disabled={loading}
-            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

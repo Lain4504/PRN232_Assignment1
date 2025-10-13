@@ -5,11 +5,14 @@ import { Product } from '@/lib/api';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, ShoppingCart, Plus, Minus } from 'lucide-react';
 import Link from 'next/link';
 import { DeleteProductDialog } from './delete-product-dialog';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
 import { useAuth } from '@/contexts/AuthContext';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { CartAPI } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -21,6 +24,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onEdit, onDelete, showActions = true, clickable = true }: ProductCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [openQty, setOpenQty] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
   const { user } = useAuth();
 
 
@@ -35,33 +41,90 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
     }
   };
 
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error('Please sign in to add items to cart');
+      return;
+    }
+    try {
+      setAdding(true);
+      const response = await CartAPI.addToCart({ productId: product.id, quantity });
+      if (response.success) {
+        toast.success('Added to cart');
+        setOpenQty(false);
+      } else {
+        toast.error(response.message || 'Failed to add to cart');
+      }
+    } catch (e) {
+      toast.error('Failed to add to cart');
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const formatVND = (value: number) => {
+    try {
+      // Use Vietnamese locale, then normalize to add trailing 'đ'
+      const formatted = new Intl.NumberFormat('vi-VN').format(value);
+      return `${formatted}đ`;
+    } catch {
+      return `${value.toLocaleString()}đ`;
+    }
+  };
+
   const cardContent = (
-    <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
+    <Card className="group overflow-hidden border-0 bg-transparent hover:shadow-md transition-all duration-300">
       {/* Product Image */}
-      <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden">
+      <div className="relative aspect-[2/3] bg-muted overflow-hidden rounded-lg">
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             width={300}
             height={300}
             unoptimized
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300">
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground/50">
             <div className="text-center">
-              <div className="text-2xl sm:text-4xl mb-1 sm:mb-2">📚</div>
-              <p className="text-xs sm:text-sm">Không có hình ảnh</p>
+              <div className="text-2xl sm:text-4xl mb-1 sm:mb-2">🧥</div>
+              <p className="text-xs sm:text-sm">No image</p>
             </div>
           </div>
         )}
-        
-        
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
-        
-        {/* Quick actions overlay */}
+        {/* Top-right: Add to cart quick action */}
+        <div className="absolute top-2 right-2 flex items-center gap-2">
+          <AlertDialog open={openQty} onOpenChange={(o) => { setOpenQty(o); if (!o) setQuantity(1); }}>
+            <AlertDialogTrigger asChild>
+              <Button size="sm" variant="secondary" className="h-8 w-8 p-0 rounded-full shadow-md" onClick={(e) => e.stopPropagation()}>
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Thêm vào giỏ</AlertDialogTitle>
+              </AlertDialogHeader>
+              <div className="flex items-center justify-center gap-3 py-2">
+                <Button variant="outline" size="icon" onClick={() => setQuantity((q) => Math.max(1, q - 1))} disabled={adding}>
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="min-w-10 text-center font-medium">{quantity}</span>
+                <Button variant="outline" size="icon" onClick={() => setQuantity((q) => Math.min(99, q + 1))} disabled={adding}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={adding}>Hủy</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAddToCart} disabled={adding}>
+                  {adding ? 'Đang thêm...' : 'Thêm vào giỏ'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+
+        {/* Top-right quick actions (admin) */}
         {showActions && (
           <div className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="flex flex-col gap-1 sm:gap-2">
@@ -98,52 +161,23 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
         )}
       </div>
 
-      {/* Product Info */}
+      {/* Product Info: title (link only on title) + price below with bottom divider */}
       <CardContent className="p-2 sm:p-3 lg:p-4">
-        <div className="space-y-2 sm:space-y-3">
-          {/* Product Name */}
-          <h3 className="font-medium text-gray-900 group-hover:text-primary transition-colors leading-tight h-8 sm:h-10 lg:h-12 overflow-hidden">
-            <span className="block line-clamp-2 text-xs sm:text-sm lg:text-base">
-              {product.name}
-            </span>
-          </h3>
-          
-          {/* Price and Add to Cart */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-lg lg:text-xl font-bold text-green-600">
-              ${product.price.toFixed(2)}
-            </span>
-          </div>
-          
-          {/* Add to Cart Button */}
-          <div className="pt-2">
-            <AddToCartButton 
-              productId={product.id}
-              productName={product.name}
-              variant="small"
-              className="w-full"
-            />
-          </div>
+        <div className="space-y-1.5 border-b pb-2">
+          <Link href={`/products/${product.id}`} className="block group/title" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-medium leading-snug group-hover/title:text-primary transition-colors">
+              <span className="block line-clamp-2 text-sm sm:text-base lg:text-lg">
+                {product.name}
+              </span>
+            </h3>
+          </Link>
+          <span className="block text-base sm:text-lg lg:text-xl font-semibold text-primary">
+            {formatVND(product.price)}
+          </span>
         </div>
       </CardContent>
     </Card>
   );
-
-  if (clickable && !showActions) {
-    return (
-      <>
-        <Link href={`/products/${product.id}`} className="block">
-          {cardContent}
-        </Link>
-        <DeleteProductDialog
-          product={product}
-          isOpen={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-          onConfirm={handleDeleteConfirm}
-        />
-      </>
-    );
-  }
 
   return (
     <>

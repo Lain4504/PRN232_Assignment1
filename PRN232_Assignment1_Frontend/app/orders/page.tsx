@@ -74,10 +74,10 @@ export default function OrdersPage() {
                 Back to Home
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Order History</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
           </div>
           <div className="text-center py-8">
-            <p>Loading orders...</p>
+            <p className="text-muted-foreground">Loading orders...</p>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function OrdersPage() {
                 Back to Home
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Order History</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
           </div>
           <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md">
             {error}
@@ -115,14 +115,14 @@ export default function OrdersPage() {
               Back to Home
             </Button>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Order History</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
         </div>
 
         {orders.length === 0 ? (
           <div className="text-center py-12">
-            <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h2 className="text-xl font-medium text-gray-900 mb-2">No orders yet</h2>
-            <p className="text-gray-500 mb-6">You haven&apos;t placed any orders yet.</p>
+            <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-medium mb-2">No orders yet</h2>
+            <p className="text-muted-foreground mb-6">You haven't placed any orders yet.</p>
             <Link href="/products">
               <Button>Browse Products</Button>
             </Link>
@@ -137,8 +137,8 @@ export default function OrdersPage() {
                       <div>
                         <CardTitle className="text-lg">Order #{order.id.slice(-8)}</CardTitle>
                         <div className="flex items-center space-x-2 mt-1">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-gray-500">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
                             {formatDate(order.createdAt)}
                           </span>
                         </div>
@@ -149,7 +149,7 @@ export default function OrdersPage() {
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                       <div className="text-lg font-bold mt-1">
-                        ${order.totalAmount.toFixed(2)}
+                        <span className="text-primary">${order.totalAmount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

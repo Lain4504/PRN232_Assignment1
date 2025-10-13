@@ -158,7 +158,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -183,7 +183,7 @@ export function ProductGrid({ showActions = false, onEdit, onDelete, showSearch 
                 >
                   Trước
                 </Button>
-                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-none">
+                <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-md">
                   Trang {currentPage} / {totalPages}
                 </span>
                 <Button
