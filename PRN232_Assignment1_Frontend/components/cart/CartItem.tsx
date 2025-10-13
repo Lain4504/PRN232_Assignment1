@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Trash2, Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { formatCurrencyVND } from '@/lib/utils';
 
 interface CartItemProps {
   item: CartItemType;
@@ -62,7 +63,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
           {/* Product Image */}
           <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
             {item.productImage ? (
@@ -83,7 +84,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-sm truncate">{item.productName}</h3>
             <p className="text-xs text-muted-foreground truncate">{item.productDescription}</p>
-            <p className="text-sm font-medium">${item.productPrice.toFixed(2)}</p>
+            <p className="text-sm font-medium">{formatCurrencyVND(item.productPrice)}</p>
           </div>
 
           {/* Quantity Controls */}
@@ -111,7 +112,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
 
           {/* Total Price */}
           <div className="text-right">
-            <p className="text-sm font-medium text-primary">${item.totalPrice.toFixed(2)}</p>
+            <p className="text-sm font-medium text-primary">{formatCurrencyVND(item.totalPrice)}</p>
           </div>
 
           {/* Remove Button */}

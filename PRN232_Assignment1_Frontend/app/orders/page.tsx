@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Package, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrencyVND } from '@/lib/utils';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -67,13 +68,15 @@ export default function OrdersPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-2">
+            <div>
+              <Link href="/">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
           </div>
           <div className="text-center py-8">
@@ -88,13 +91,15 @@ export default function OrdersPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-2">
+            <div>
+              <Link href="/">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
           </div>
           <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md">
@@ -108,13 +113,15 @@ export default function OrdersPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       <div className="space-y-4 sm:space-y-6">
-        <div className="flex items-center space-x-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
+        <div className="flex flex-col gap-2">
+          <div>
+            <Link href="/">
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold">Order History</h1>
         </div>
 
@@ -122,7 +129,7 @@ export default function OrdersPage() {
           <div className="text-center py-12">
             <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <h2 className="text-xl font-medium mb-2">No orders yet</h2>
-            <p className="text-muted-foreground mb-6">You haven't placed any orders yet.</p>
+            <p className="text-muted-foreground mb-6">You haven&apos;t placed any orders yet.</p>
             <Link href="/products">
               <Button>Browse Products</Button>
             </Link>
@@ -144,12 +151,12 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right whitespace-nowrap">
                       <Badge className={getStatusColor(order.status)}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                       <div className="text-lg font-bold mt-1">
-                        <span className="text-primary">${order.totalAmount.toFixed(2)}</span>
+                        <span className="text-primary">{formatCurrencyVND(order.totalAmount)}</span>
                       </div>
                     </div>
                   </div>

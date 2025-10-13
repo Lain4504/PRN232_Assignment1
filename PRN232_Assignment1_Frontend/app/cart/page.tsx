@@ -87,16 +87,16 @@ export default function CartPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       <div className="space-y-4 sm:space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <div className="flex items-center">
             <Link href="/">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Continue Shopping
               </Button>
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
         </div>
 
         {items.length === 0 ? (
@@ -108,7 +108,7 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
@@ -121,7 +121,7 @@ export default function CartPage() {
             </div>
 
             {/* Cart Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 lg:sticky lg:top-20 self-start">
               <CartSummary items={items} onClear={handleClearCart} />
             </div>
           </div>

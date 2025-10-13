@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { formatCurrencyVND } from '@/lib/utils';
 
 interface CartSummaryProps {
   items: CartItemType[];
@@ -17,7 +18,7 @@ export function CartSummary({ items, onClear }: CartSummaryProps) {
   const router = useRouter();
 
   const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-  const shipping = subtotal > 0 ? 10 : 0; // Free shipping over $50, otherwise $10
+  const shipping = subtotal > 0 ? 0 : 0; // Shipping fee omitted or 0 in VND context
   const total = subtotal + shipping;
 
   const handleClearCart = async () => {
@@ -69,16 +70,16 @@ export function CartSummary({ items, onClear }: CartSummaryProps) {
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Subtotal ({items.length} items)</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{formatCurrencyVND(subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span>Shipping</span>
-            <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+            <span>{shipping === 0 ? 'Miễn phí' : formatCurrencyVND(shipping)}</span>
           </div>
           <div className="border-t pt-2">
             <div className="flex justify-between font-medium">
               <span>Total</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">{formatCurrencyVND(total)}</span>
             </div>
           </div>
         </div>

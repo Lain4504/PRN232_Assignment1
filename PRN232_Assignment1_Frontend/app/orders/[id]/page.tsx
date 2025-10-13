@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Package, Calendar, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrencyVND } from '@/lib/utils';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -153,16 +154,16 @@ export default function OrderDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-x-auto">
                   {order.orderItems.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
-                      <div className="flex-1">
+                    <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-b-0 min-w-[280px]">
+                      <div className="flex-1 min-w-0">
                         <h4 className="font-medium">{item.productName}</h4>
-                        <p className="text-sm text-gray-500">${item.productPrice.toFixed(2)} each</p>
+                        <p className="text-sm text-gray-500">{formatCurrencyVND(item.productPrice)} each</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right whitespace-nowrap">
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                        <p className="font-medium">${item.totalPrice.toFixed(2)}</p>
+                        <p className="font-medium">{formatCurrencyVND(item.totalPrice)}</p>
                       </div>
                     </div>
                   ))}
@@ -181,16 +182,16 @@ export default function OrderDetailPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
-                    <span>${(order.totalAmount * 0.9).toFixed(2)}</span>
+                    <span>{formatCurrencyVND(order.totalAmount * 0.9)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax</span>
-                    <span>${(order.totalAmount * 0.1).toFixed(2)}</span>
+                    <span>{formatCurrencyVND(order.totalAmount * 0.1)}</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-medium">
                       <span>Total</span>
-                      <span>${order.totalAmount.toFixed(2)}</span>
+                      <span>{formatCurrencyVND(order.totalAmount)}</span>
                     </div>
                   </div>
                 </div>

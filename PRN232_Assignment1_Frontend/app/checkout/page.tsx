@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, CreditCard, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { formatCurrencyVND } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
@@ -44,7 +45,7 @@ export default function CheckoutPage() {
   }, []);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-  const shipping = subtotal > 0 ? 10 : 0;
+  const shipping = subtotal > 0 ? 0 : 0;
   const total = subtotal + shipping;
 
   const handlePlaceOrder = async () => {
@@ -240,7 +241,7 @@ export default function CheckoutPage() {
                         <h4 className="font-medium text-sm">{item.productName}</h4>
                         <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                       </div>
-                      <span className="font-medium">${item.totalPrice.toFixed(2)}</span>
+                      <span className="font-medium">{formatCurrencyVND(item.totalPrice)}</span>
                     </div>
                   ))}
                 </div>
@@ -248,16 +249,16 @@ export default function CheckoutPage() {
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatCurrencyVND(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
-                    <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                    <span>{shipping === 0 ? 'Miễn phí' : formatCurrencyVND(shipping)}</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-medium">
                       <span>Total</span>
-                      <span className="text-primary">${total.toFixed(2)}</span>
+                      <span className="text-primary">{formatCurrencyVND(total)}</span>
                     </div>
                   </div>
                 </div>

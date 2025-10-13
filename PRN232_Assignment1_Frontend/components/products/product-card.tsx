@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { CartAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { formatCurrencyVND } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -21,17 +22,14 @@ interface ProductCardProps {
   clickable?: boolean;
 }
 
-export function ProductCard({ product, onEdit, onDelete, showActions = true, clickable = true }: ProductCardProps) {
+export function ProductCard({ product, onDelete }: ProductCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [openQty, setOpenQty] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const { user } = useAuth();
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteDialog(true);
-  };
+  // Delete is driven by the external dialog actions; no inline icon here
 
   const handleDeleteConfirm = async (productId: string) => {
     if (onDelete) {
@@ -64,14 +62,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
     }
   };
 
-  const formatVND = (value: number) => {
-    try {
-      const formatted = new Intl.NumberFormat('vi-VN').format(value);
-      return `${formatted}đ`;
-    } catch {
-      return `${value.toLocaleString()}đ`;
-    }
-  };
+  
 
   const cardContent = (
     <Card className="group overflow-hidden border-0 bg-transparent transition-all duration-300 cursor-pointer rounded-none border-none shadow-none">
@@ -109,7 +100,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
               <AlertDialogHeader>
                 <AlertDialogTitle>Thêm vào giỏ hàng</AlertDialogTitle>
               </AlertDialogHeader>
-              <div className="flex items-center justify-center gap-3 py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
                 <Button 
                   variant="outline" 
                   size="icon" 
@@ -128,9 +119,9 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={adding}>Hủy</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAddToCart} disabled={adding}>
+              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                <AlertDialogCancel disabled={adding} className="w-full sm:w-auto">Hủy</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAddToCart} disabled={adding} className="w-full sm:w-auto">
                   {adding ? 'Đang thêm...' : 'Thêm vào giỏ'}
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -142,12 +133,12 @@ export function ProductCard({ product, onEdit, onDelete, showActions = true, cli
       {/* Product Info */}
       <CardContent className="p-2 sm:p-3">
         <Link href={`/products/${product.id}`} className="block" onClick={(e) => e.stopPropagation()}>
-          <h3 className="font-normal text-sm sm:text-base leading-relaxed line-clamp-2 mb-1 text-gray-800 hover:text-gray-600 transition-colors">
+          <h3 className="font-normal text-[13px] sm:text-base leading-relaxed line-clamp-2 mb-1 text-gray-800 hover:text-gray-600 transition-colors">
             {product.name}
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-sm sm:text-base font-semibold text-gray-900">
-              {formatVND(product.price)}
+              {formatCurrencyVND(product.price)}
             </span>
           </div>
         </Link>

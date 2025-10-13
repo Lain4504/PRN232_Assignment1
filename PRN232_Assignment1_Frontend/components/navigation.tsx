@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Package, Home, Menu, ShoppingCart } from 'lucide-react';
@@ -17,7 +17,7 @@ export function Navigation() {
   const { user, loading } = useAuth();
   const [cartCount, setCartCount] = useState<number>(0);
 
-  const fetchCartCount = async () => {
+  const fetchCartCount = useCallback(async () => {
     if (!user) {
       setCartCount(0);
       return;
@@ -28,17 +28,17 @@ export function Navigation() {
     } catch {
       // ignore
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchCartCount();
-  }, [user]);
+  }, [fetchCartCount]);
 
   useEffect(() => {
     const handler = () => fetchCartCount();
     window.addEventListener('cart:updated', handler as EventListener);
     return () => window.removeEventListener('cart:updated', handler as EventListener);
-  }, []);
+  }, [fetchCartCount]);
 
   const navItems = [
     {
@@ -87,11 +87,11 @@ export function Navigation() {
           </div>
           
           {/* Right side - Auth buttons or user menu */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             {!loading && (
               <>
                 {user ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Link href="/cart">
                       <Button variant="ghost" size="sm" className="relative">
                         <ShoppingCart className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function Navigation() {
                     <UserMenu />
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Link href="/auth/login">
                       <Button variant="ghost" size="sm">
                         Sign In
@@ -161,7 +161,7 @@ export function Navigation() {
                     <div className="pt-2 border-t">
                       {!loading && (
                         user ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-2">
                             <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)}>
                               <Button variant="ghost" size="sm" className="w-full justify-start relative">
                                 <ShoppingCart className="h-4 w-4 mr-2" />
@@ -173,15 +173,20 @@ export function Navigation() {
                                 )}
                               </Button>
                             </Link>
-                            <UserMenu />
+                            <Link href="/orders" onClick={() => setIsMobileMenuOpen(false)}>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Package className="h-4 w-4 mr-2" />
+                                Orders
+                              </Button>
+                            </Link>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-2">
                             <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Button variant="ghost" size="sm" className="w-full">Sign In</Button>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">Sign In</Button>
                             </Link>
                             <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Button size="sm" className="w-full">Sign Up</Button>
+                              <Button size="sm" className="w-full justify-start">Sign Up</Button>
                             </Link>
                           </div>
                         )
