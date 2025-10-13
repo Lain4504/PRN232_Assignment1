@@ -1,5 +1,7 @@
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace PRN232_Assignment1.Models;
 
@@ -25,5 +27,7 @@ public class CartItem : BaseModel
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation property
+    [JsonProperty(Required = Newtonsoft.Json.Required.Default)]
+    [Newtonsoft.Json.JsonIgnore]
     public Product? Product { get; set; }
 }

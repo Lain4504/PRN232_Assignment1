@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Supabase.Postgrest.Models;
+using Newtonsoft.Json;
 
 namespace PRN232_Assignment1.Models;
 
@@ -28,6 +29,8 @@ public class OrderItem : BaseModel
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation properties
+    [JsonIgnore]
     public Order? Order { get; set; }
+    [JsonIgnore]
     public Product? Product { get; set; }
 }

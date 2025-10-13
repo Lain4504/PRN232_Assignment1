@@ -1,5 +1,6 @@
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
+using Newtonsoft.Json;
 
 namespace PRN232_Assignment1.Models;
 [Table("orders")]
@@ -27,5 +28,6 @@ public class Order : BaseModel
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
     // Navigation property
+    [JsonIgnore]
     public List<OrderItem> OrderItems { get; set; } = new();
 }
