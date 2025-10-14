@@ -85,12 +85,12 @@ namespace PRN232_Assignment1.Controllers
         }
 
         [HttpGet("vnpay-callback")]
-        public async Task<IActionResult> VNPayCallback([FromQuery] IQueryCollection collections)
+        public async Task<IActionResult> VNPayCallback()
         {
             try
             {
                 // Process VNPay callback
-                var paymentResponse = _vnPayService.ProcessPaymentCallback(collections);
+                var paymentResponse = _vnPayService.ProcessPaymentCallback(Request.Query);
 
                 if (paymentResponse.Success)
                 {

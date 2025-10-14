@@ -116,11 +116,16 @@ namespace PRN232_Assignment1.Services
             var vnp_SecureHash = collection["vnp_SecureHash"].ToString();
             var checkSignature = ComputeHmacSha512(vnp_HashSecret, signData);
 
+            // Extract OrderId from vnp_OrderInfo
+            // Format: "Thanh toan don hang #<OrderId> <OrderId>"
+            var orderInfo = collection["vnp_OrderInfo"].ToString();
+            var orderId = ExtractOrderIdFromOrderInfo(orderInfo);
+
             var response = new PaymentResponse
             {
                 OrderDescription = collection["vnp_OrderInfo"],
                 TransactionId = collection["vnp_TransactionNo"],
-                OrderId = collection["vnp_TxnRef"],
+                OrderId = orderId,
                 PaymentMethod = collection["vnp_CardType"],
                 PaymentId = collection["vnp_TransactionNo"],
                 Success = collection["vnp_ResponseCode"].Equals("00"),
@@ -129,6 +134,28 @@ namespace PRN232_Assignment1.Services
             };
 
             return response;
+        }
+
+        private string ExtractOrderIdFromOrderInfo(string orderInfo)
+        {
+            // OrderInfo format: "Thanh toan don hang #<OrderId> <OrderId>"
+            // We need to extract the UUID (OrderId) from this string
+            
+            // Try to find a UUID pattern in the string
+            var parts = orderInfo.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            
+            // Look for a UUID in the parts (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+            foreach (var part in parts)
+            {
+                var cleanPart = part.Trim('#');
+                if (System.Guid.TryParse(cleanPart, out _))
+                {
+                    return cleanPart;
+                }
+            }
+            
+            // If no UUID found, return empty string
+            return string.Empty;
         }
 
         public string GetIpAddress(HttpContext context)

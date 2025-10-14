@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using Newtonsoft.Json;
 
@@ -7,7 +7,7 @@ namespace PRN232_Assignment1.Models;
 [Table("order_items")]
 public class OrderItem : BaseModel
 {
-    [ForeignKey("id")]
+    [PrimaryKey("id")]
     public string Id { get; set; } = string.Empty;
     
     [Column("order_id")]

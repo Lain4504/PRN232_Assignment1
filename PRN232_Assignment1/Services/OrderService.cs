@@ -60,9 +60,9 @@ public class OrderService : IOrderService
             Status = "pending_payment"
         };
 
-        // Calculate total and create order items
+        // Calculate total
         decimal totalAmount = 0;
-        var orderItems = new List<OrderItem>();
+        var orderItemsData = new List<(string ProductId, string ProductName, decimal ProductPrice, int Quantity)>();
 
         foreach (var cartItem in cartItems)
         {
@@ -75,24 +75,36 @@ public class OrderService : IOrderService
             var itemTotal = (decimal)product.Price * cartItem.Quantity;
             totalAmount += itemTotal;
 
-            orderItems.Add(new OrderItem
-            {
-                OrderId = order.Id,
-                ProductId = product.Id,
-                ProductName = product.Name,
-                ProductPrice = (decimal)product.Price,
-                Quantity = cartItem.Quantity
-            });
+            orderItemsData.Add((product.Id, product.Name, (decimal)product.Price, cartItem.Quantity));
         }
 
         order.TotalAmount = totalAmount;
-        order.OrderItems = orderItems;
 
-        // Save order
+        // Save order first to get the generated ID
         var createdOrder = await _orderRepository.CreateOrderAsync(order);
+
+        // Now create order items with the correct OrderId
+        var orderItems = new List<OrderItem>();
+        foreach (var itemData in orderItemsData)
+        {
+            orderItems.Add(new OrderItem
+            {
+                OrderId = createdOrder.Id,
+                ProductId = itemData.ProductId,
+                ProductName = itemData.ProductName,
+                ProductPrice = itemData.ProductPrice,
+                Quantity = itemData.Quantity
+            });
+        }
+
+        // Save order items
+        await _orderRepository.CreateOrderItemsAsync(orderItems);
 
         // Clear cart
         await _cartRepository.ClearCartAsync(userId);
+
+        // Load the order with items
+        createdOrder.OrderItems = orderItems;
 
         return await MapOrderToDto(createdOrder);
     }

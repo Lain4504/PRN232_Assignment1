@@ -9,4 +9,5 @@ public interface IOrderRepository
     Task<Order> CreateOrderAsync(Order order);
     Task<Order> UpdateOrderAsync(Order order);
     Task<bool> DeleteOrderAsync(string orderId);
+    Task CreateOrderItemsAsync(List<OrderItem> orderItems);
 }

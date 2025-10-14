@@ -22,7 +22,15 @@ public class OrderRepository : IOrderRepository
             .Order(x => x.CreatedAt, Constants.Ordering.Descending)
             .Get();
 
-        return response.Models;
+        var orders = response.Models.ToList();
+        
+        // Load OrderItems for each order
+        foreach (var order in orders)
+        {
+            order.OrderItems = await GetOrderItemsByOrderIdAsync(order.Id);
+        }
+
+        return orders;
     }
 
     public async Task<Order?> GetOrderByIdAsync(string orderId)
@@ -31,6 +39,11 @@ public class OrderRepository : IOrderRepository
             .From<Order>()
             .Where(x => x.Id == orderId)
             .Single();
+
+        if (response != null)
+        {
+            response.OrderItems = await GetOrderItemsByOrderIdAsync(orderId);
+        }
 
         return response;
     }
@@ -66,5 +79,27 @@ public class OrderRepository : IOrderRepository
             .Delete();
 
         return true;
+    }
+
+    private async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(string orderId)
+    {
+        var response = await _supabaseClient
+            .From<OrderItem>()
+            .Where(x => x.OrderId == orderId)
+            .Get();
+
+        return response.Models.ToList();
+    }
+
+    public async Task CreateOrderItemsAsync(List<OrderItem> orderItems)
+    {
+        foreach (var item in orderItems)
+        {
+            item.CreatedAt = DateTime.UtcNow;
+        }
+
+        await _supabaseClient
+            .From<OrderItem>()
+            .Insert(orderItems);
     }
 }
