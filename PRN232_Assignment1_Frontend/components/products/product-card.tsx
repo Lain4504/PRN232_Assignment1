@@ -55,7 +55,7 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
       } else {
         toast.error(response.message || 'Không thể thêm vào giỏ hàng');
       }
-    } catch (e) {
+    } catch {
       toast.error('Không thể thêm vào giỏ hàng');
     } finally {
       setAdding(false);

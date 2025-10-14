@@ -8,14 +8,12 @@ import { ArrowLeft, CreditCard, ShoppingCart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { formatCurrencyVND } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
 
   const fetchCartItems = async () => {
