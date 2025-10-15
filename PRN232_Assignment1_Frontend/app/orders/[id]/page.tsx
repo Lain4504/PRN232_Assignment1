@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { OrderAPI, Order } from '@/lib/api';
+import { OrderAPI, Order, PaymentAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Package, Calendar, CreditCard } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, CreditCard, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrencyVND } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -17,6 +18,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [continuingPayment, setContinuingPayment] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -42,6 +44,37 @@ export default function OrderDetailPage() {
       fetchOrder();
     }
   }, [orderId]);
+
+  const isWithinPaymentWindow = (createdAt: string) => {
+    const created = new Date(createdAt).getTime();
+    const now = Date.now();
+    const fifteenMinutesMs = 15 * 60 * 1000;
+    return now - created <= fifteenMinutesMs;
+  };
+
+  const canContinuePayment = (o: Order | null) => {
+    if (!o) return false;
+    const statusLower = (o.status || '').toLowerCase();
+    if (statusLower !== 'pending_payment') return false;
+    return isWithinPaymentWindow(o.createdAt);
+  };
+
+  const handleContinuePayment = async () => {
+    if (!order) return;
+    setContinuingPayment(true);
+    try {
+      const res = await PaymentAPI.createPaymentUrl({ orderId: order.id });
+      if (res.success) {
+        window.location.href = res.data.paymentUrl;
+      } else {
+        toast.error(res.message || 'Không thể tạo liên kết thanh toán');
+      }
+    } catch (e) {
+      toast.error('Không thể tạo liên kết thanh toán');
+    } finally {
+      setContinuingPayment(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -227,6 +260,38 @@ export default function OrderDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Continue Payment (within 15 minutes, pending) */}
+            {canContinuePayment(order) ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Thanh toán</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={handleContinuePayment} disabled={continuingPayment} className="w-full">
+                    {continuingPayment ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang chuyển đến VNPay...
+                      </>
+                    ) : (
+                      'Tiếp tục thanh toán qua VNPay'
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">Đơn hàng còn hiệu lực thanh toán trong 15 phút kể từ khi tạo.</p>
+                </CardContent>
+              </Card>
+            ) : order && order.status.toLowerCase() === 'pending_payment' ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Thanh toán</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button disabled className="w-full" variant="outline">Đã quá hạn thanh toán</Button>
+                  <p className="text-xs text-muted-foreground mt-2">Thời gian thanh toán (15 phút) đã hết.</p>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
         </div>
       </div>

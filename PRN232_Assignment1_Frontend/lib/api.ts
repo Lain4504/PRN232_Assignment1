@@ -165,9 +165,11 @@ export class ProductAPI {
     // Add auth header if required
     if (requireAuth) {
       const token = await getAuthToken();
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
+      if (!token) {
+        // Explicitly surface unauthorized to callers
+        throw new Error('HTTP error! status: 401');
       }
+      headers.Authorization = `Bearer ${token}`;
     }
     
     const response = await fetch(url, {
@@ -195,9 +197,11 @@ export class ProductAPI {
     // Add auth header if required
     if (requireAuth) {
       const token = await getAuthToken();
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
+      if (!token) {
+        // Explicitly surface unauthorized to callers
+        throw new Error('HTTP error! status: 401');
       }
+      headers.Authorization = `Bearer ${token}` as unknown as string;
     }
     
     const response = await fetch(url, {

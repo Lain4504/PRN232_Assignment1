@@ -45,11 +45,13 @@ export function Navigation() {
       href: '/',
       label: 'Trang chủ',
       icon: Home,
+      requiresAuth: false,
     },
     {
       href: '/products',
       label: 'Sản phẩm',
       icon: Package,
+      requiresAuth: true,
     },
   ];
 
@@ -62,7 +64,7 @@ export function Navigation() {
               Cửa hàng
             </Link>
             <div className="hidden md:flex items-center space-x-2">
-              {navItems.map((item) => {
+              {navItems.filter((item) => !item.requiresAuth || (!!user && !loading)).map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                 
@@ -134,7 +136,7 @@ export function Navigation() {
                     <SheetTitle>Cửa hàng</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 flex flex-col gap-2">
-                    {navItems.map((item) => {
+                    {navItems.filter((item) => !item.requiresAuth || (!!user && !loading)).map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                       return (

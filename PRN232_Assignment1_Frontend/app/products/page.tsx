@@ -7,6 +7,7 @@ import { ProductSearch } from '@/components/products/product-search';
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { ProductForm } from '@/components/products/product-form';
 
 export default function ProductsPage() {
@@ -75,11 +76,18 @@ export default function ProductsPage() {
         // Reset to page 1 and refresh the data
         setCurrentPage(1);
         await fetchProducts(1, isSearching ? searchParams : undefined);
+        toast.success('Sản phẩm đã được xóa thành công!');
       } else {
         setError(response.message || 'Failed to delete product');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete product');
+      const message = err instanceof Error ? err.message : '';
+      if (typeof message === 'string' && message.includes('status: 401')) {
+        // Show toast only; don't pollute page-level error with technical code
+        toast.error('Bạn chưa đăng nhập');
+        return;
+      }
+      setError(message || 'Failed to delete product');
     }
   };
 

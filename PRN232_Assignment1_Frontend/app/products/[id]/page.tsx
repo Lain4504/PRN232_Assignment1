@@ -3,12 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { ProductAPI, Product } from '@/lib/api';
-import { AddToCartButton } from '@/components/cart/AddToCartButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatCurrencyVND } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { CartAPI } from '@/lib/api';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ShoppingCart, Plus, Minus } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -17,6 +22,10 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [openQty, setOpenQty] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,6 +51,32 @@ export default function ProductDetailPage() {
       fetchProduct();
     }
   }, [productId]);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      return;
+    }
+    try {
+      setAdding(true);
+      const response = await CartAPI.addToCart({ productId: product.id, quantity });
+      if (response.success) {
+        toast.success('Đã thêm vào giỏ hàng');
+        setOpenQty(false);
+        setQuantity(1);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('cart:updated'));
+        }
+      } else {
+        toast.error(response.message || 'Không thể thêm vào giỏ hàng');
+      }
+    } catch {
+      toast.error('Không thể thêm vào giỏ hàng');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -131,16 +166,49 @@ export default function ProductDetailPage() {
 
             <div className="flex items-center space-x-4">
               <span className="text-3xl font-bold text-primary">
-                ${product.price.toFixed(2)}
+                {formatCurrencyVND(product.price)}
               </span>
             </div>
 
             <div className="space-y-4">
-              <AddToCartButton 
-                productId={product.id}
-                productName={product.name}
-                className="w-full"
-              />
+              <AlertDialog open={openQty} onOpenChange={(o) => { setOpenQty(o); if (!o) setQuantity(1); }}>
+                <AlertDialogTrigger asChild>
+                  <Button className="w-full">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Thêm vào giỏ hàng
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Chọn số lượng</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <div className="flex items-center justify-center gap-3 py-2">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))} 
+                      disabled={adding}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="min-w-[60px] text-center font-medium text-lg">{quantity}</span>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => setQuantity((q) => Math.min(99, q + 1))} 
+                      disabled={adding}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={adding}>Hủy</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleAddToCart} disabled={adding}>
+                      {adding ? 'Đang thêm...' : 'Thêm vào giỏ'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             <div className="border-t pt-6">
@@ -152,7 +220,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Price:</span>
-                  <span>${product.price.toFixed(2)}</span>
+                  <span>{formatCurrencyVND(product.price)}</span>
                 </div>
               </div>
             </div>

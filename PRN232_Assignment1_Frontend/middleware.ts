@@ -64,9 +64,11 @@ export async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => 
     req.nextUrl.pathname.startsWith(route)
   )
+  // Protect admin products page only at exact "/products", not product detail pages
+  const isAdminProductsPage = req.nextUrl.pathname === '/products'
 
   // If accessing a protected route without authentication, redirect to login
-  if (isProtectedRoute && !session) {
+  if ((isProtectedRoute || isAdminProductsPage) && !session) {
     const redirectUrl = new URL('/auth/login', req.url)
     redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)

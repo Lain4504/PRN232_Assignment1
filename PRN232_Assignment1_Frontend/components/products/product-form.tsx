@@ -107,8 +107,13 @@ export function ProductForm({ product, onClose, onSubmit }: ProductFormProps) {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      toast.error('Có lỗi xảy ra khi lưu sản phẩm');
+      if (typeof errorMessage === 'string' && errorMessage.includes('status: 401')) {
+        setError('Bạn chưa đăng nhập');
+        toast.error('Bạn chưa đăng nhập');
+      } else {
+        setError(errorMessage);
+        toast.error('Có lỗi xảy ra khi lưu sản phẩm');
+      }
     } finally {
       setLoading(false);
     }

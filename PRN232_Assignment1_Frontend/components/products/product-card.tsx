@@ -98,9 +98,9 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
             </AlertDialogTrigger>
             <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
-                <AlertDialogTitle>Thêm vào giỏ hàng</AlertDialogTitle>
+                <AlertDialogTitle>Chọn số lượng</AlertDialogTitle>
               </AlertDialogHeader>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
+              <div className="flex items-center justify-center gap-3 py-2">
                 <Button 
                   variant="outline" 
                   size="icon" 
@@ -119,9 +119,9 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                <AlertDialogCancel disabled={adding} className="w-full sm:w-auto">Hủy</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAddToCart} disabled={adding} className="w-full sm:w-auto">
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={adding}>Hủy</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAddToCart} disabled={adding}>
                   {adding ? 'Đang thêm...' : 'Thêm vào giỏ'}
                 </AlertDialogAction>
               </AlertDialogFooter>

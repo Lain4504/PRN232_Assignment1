@@ -43,6 +43,23 @@ export function LoginForm() {
         <CardDescription>
           Enter your email and password to sign in to your account.
         </CardDescription>
+        <div className="mt-2 rounded-md border bg-muted/30 p-3 text-sm">
+          <div className="font-medium mb-1">Tài khoản demo (dành cho giảng viên):</div>
+          <div className="font-mono text-xs sm:text-sm">
+            <div>user@example.com</div>
+            <div>123456789</div>
+          </div>
+          <div className="mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => { setEmail('user@example.com'); setPassword('123456789'); }}
+            >
+              Điền thông tin demo
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
