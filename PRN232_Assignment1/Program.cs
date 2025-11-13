@@ -19,24 +19,31 @@ var builder = WebApplication.CreateBuilder(args);
 var mongoDbSettings = builder.Configuration.GetSection("MongoDB");
 var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? mongoDbSettings["ConnectionString"];
 var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME") ?? mongoDbSettings["DatabaseName"];
-builder.Configuration["R2:AccessKey"] = Env.GetString("R2_ACCESS_KEY");
-builder.Configuration["R2:SecretKey"] = Env.GetString("R2_SECRET_KEY");
-builder.Configuration["R2:AccountId"] = Env.GetString("R2_ACCOUNT_ID");
-builder.Configuration["R2:BucketName"] = Env.GetString("R2_BUCKET_NAME");
-builder.Configuration["R2:PublicUrl"] = Env.GetString("R2_PUBLIC_URL");
+
+// Cloudflare R2 Configuration (optional - only if environment variables are set)
+var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY");
+if (!string.IsNullOrEmpty(r2AccessKey))
+{
+    builder.Configuration["R2:AccessKey"] = r2AccessKey;
+    builder.Configuration["R2:SecretKey"] = Environment.GetEnvironmentVariable("R2_SECRET_KEY");
+    builder.Configuration["R2:AccountId"] = Environment.GetEnvironmentVariable("R2_ACCOUNT_ID");
+    builder.Configuration["R2:BucketName"] = Environment.GetEnvironmentVariable("R2_BUCKET_NAME");
+    builder.Configuration["R2:PublicUrl"] = Environment.GetEnvironmentVariable("R2_PUBLIC_URL");
+    builder.Services.AddScoped<ICloudflareService, CloudflareService>();
+}
+
 builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
     new MongoClient(connectionString));
 
-builder.Services.AddSingleton<ProductContext>(serviceProvider =>
+builder.Services.AddSingleton<PostContext>(serviceProvider =>
 {
     var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
-    return new ProductContext(mongoClient, databaseName);
+    return new PostContext(mongoClient, databaseName);
 });
 
 // Register repositories and services
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<ICloudflareService, CloudflareService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

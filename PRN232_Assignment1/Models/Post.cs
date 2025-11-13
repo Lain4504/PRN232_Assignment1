@@ -1,9 +1,9 @@
-﻿using MongoDB.Bson;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace PRN232_Assignment1.Models;
 
-public class Product
+public class Post
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -11,6 +11,6 @@ public class Product
     
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public decimal Price { get; set; }
     public string Image { get; set; } = string.Empty;
 }
+

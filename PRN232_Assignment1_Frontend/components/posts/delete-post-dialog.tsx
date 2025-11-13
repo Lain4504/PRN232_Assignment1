@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Product } from '@/lib/api';
+import { Post } from '@/lib/api';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,19 +15,19 @@ import {
 import { Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface DeleteProductDialogProps {
-  product: Product | null;
+interface DeletePostDialogProps {
+  post: Post | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (productId: string) => Promise<void>;
+  onConfirm: (postId: string) => Promise<void>;
 }
 
-export function DeleteProductDialog({ 
-  product, 
+export function DeletePostDialog({ 
+  post, 
   isOpen, 
   onClose, 
   onConfirm 
-}: DeleteProductDialogProps) {
+}: DeletePostDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Reset loading state when dialog is closed
@@ -39,23 +39,23 @@ export function DeleteProductDialog({
   };
 
   const handleConfirm = async () => {
-    if (!product || isDeleting) return;
+    if (!post || isDeleting) return;
     
     try {
       setIsDeleting(true);
-      await onConfirm(product.id);
+      await onConfirm(post.id);
       // Success - dialog will be closed by parent component
-      toast.success('Sản phẩm đã được xóa thành công!');
+      toast.success('Post deleted successfully!');
       // Reset loading state after successful deletion
       setIsDeleting(false);
     } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+      console.error('Error deleting post:', error);
+      toast.error('Error deleting post');
       setIsDeleting(false);
     }
   };
 
-  if (!product) return null;
+  if (!post) return null;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleClose}>
@@ -67,7 +67,7 @@ export function DeleteProductDialog({
             </div>
             <div>
               <AlertDialogTitle className="text-left">
-                Xóa sản phẩm
+                Delete Post
               </AlertDialogTitle>
             </div>
           </div>
@@ -75,10 +75,10 @@ export function DeleteProductDialog({
         
         <AlertDialogDescription className="text-left space-y-3">
           <p>
-            Bạn có chắc chắn muốn xóa sản phẩm <strong>&ldquo;{product.name}&rdquo;</strong> không?
+            Are you sure you want to delete the post <strong>&ldquo;{post.name}&rdquo;</strong>?
           </p>
           <p className="text-sm text-muted-foreground">
-            Hành động này không thể hoàn tác. Sản phẩm sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            This action cannot be undone. The post will be permanently deleted from the system.
           </p>
         </AlertDialogDescription>
         
@@ -88,7 +88,7 @@ export function DeleteProductDialog({
             disabled={isDeleting}
             className="flex-1 sm:flex-none"
           >
-            Hủy
+            Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
@@ -98,12 +98,12 @@ export function DeleteProductDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Đang xóa...
+                Deleting...
               </>
             ) : (
               <>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Xóa sản phẩm
+                Delete Post
               </>
             )}
           </AlertDialogAction>
@@ -112,3 +112,4 @@ export function DeleteProductDialog({
     </AlertDialog>
   );
 }
+

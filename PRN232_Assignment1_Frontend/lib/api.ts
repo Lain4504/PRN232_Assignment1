@@ -4,11 +4,10 @@ import { config } from './config';
 const API_BASE_URL = config.api.baseUrl;
 
 // Types based on backend DTOs
-export interface Product {
+export interface Post {
   id: string;
   name: string;
   description: string;
-  price: number;
   image: string;
 }
 
@@ -35,28 +34,26 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
-export interface CreateProductData {
+export interface CreatePostData {
   name: string;
   description: string;
-  price: number;
+  imageUrl?: string;
   imageFile?: File;
 }
 
-export interface UpdateProductData extends CreateProductData {
+export interface UpdatePostData extends CreatePostData {
   id: string;
 }
 
 export interface SearchParams {
   searchTerm?: string;
-  minPrice?: number;
-  maxPrice?: number;
   page?: number;
   pageSize?: number;
   sortOrder?: 0 | 1; // 0 = A-Z, 1 = Z-A
 }
 
 // API functions
-export class ProductAPI {
+export class PostAPI {
   private static async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -97,65 +94,69 @@ export class ProductAPI {
     return response.json();
   }
 
-  // Get all products with pagination
-  static async getProducts(page: number = 1, pageSize: number = 10): Promise<ApiResponse<PaginatedResponse<Product>>> {
-    return this.request<PaginatedResponse<Product>>(`/products?page=${page}&pageSize=${pageSize}`);
+  // Get all posts with pagination
+  static async getPosts(page: number = 1, pageSize: number = 10): Promise<ApiResponse<PaginatedResponse<Post>>> {
+    return this.request<PaginatedResponse<Post>>(`/posts?page=${page}&pageSize=${pageSize}`);
   }
 
-  // Get product by ID
-  static async getProductById(id: string): Promise<ApiResponse<Product>> {
-    return this.request<Product>(`/products/${id}`);
+  // Get post by ID
+  static async getPostById(id: string): Promise<ApiResponse<Post>> {
+    return this.request<Post>(`/posts/${id}`);
   }
 
-  // Create new product
-  static async createProduct(productData: CreateProductData): Promise<ApiResponse<Product>> {
+  // Create new post
+  static async createPost(postData: CreatePostData): Promise<ApiResponse<Post>> {
     const formData = new FormData();
-    formData.append('name', productData.name);
-    formData.append('description', productData.description);
-    formData.append('price', productData.price.toString());
+    formData.append('name', postData.name);
+    formData.append('description', postData.description);
     
-    if (productData.imageFile) {
-      formData.append('imageFile', productData.imageFile);
+    if (postData.imageUrl) {
+      formData.append('imageUrl', postData.imageUrl);
+    }
+    
+    if (postData.imageFile) {
+      formData.append('imageFile', postData.imageFile);
     }
 
-    return this.requestWithFormData<Product>('/products', formData, 'POST');
+    return this.requestWithFormData<Post>('/posts', formData, 'POST');
   }
 
-  // Update product
-  static async updateProduct(productData: UpdateProductData): Promise<ApiResponse<Product>> {
+  // Update post
+  static async updatePost(postData: UpdatePostData): Promise<ApiResponse<Post>> {
     const formData = new FormData();
-    formData.append('name', productData.name);
-    formData.append('description', productData.description);
-    formData.append('price', productData.price.toString());
+    formData.append('name', postData.name);
+    formData.append('description', postData.description);
     
-    if (productData.imageFile) {
-      formData.append('imageFile', productData.imageFile);
+    if (postData.imageUrl) {
+      formData.append('imageUrl', postData.imageUrl);
+    }
+    
+    if (postData.imageFile) {
+      formData.append('imageFile', postData.imageFile);
     }
 
-    return this.requestWithFormData<Product>(`/products/${productData.id}`, formData, 'PUT');
+    return this.requestWithFormData<Post>(`/posts/${postData.id}`, formData, 'PUT');
   }
 
-  // Delete product
-  static async deleteProduct(id: string): Promise<ApiResponse<null>> {
-    return this.request<null>(`/products/${id}`, {
+  // Delete post
+  static async deletePost(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/posts/${id}`, {
       method: 'DELETE',
     });
   }
 
-  // Search products
-  static async searchProducts(params: SearchParams = {}): Promise<ApiResponse<PaginatedResponse<Product>>> {
+  // Search posts
+  static async searchPosts(params: SearchParams = {}): Promise<ApiResponse<PaginatedResponse<Post>>> {
     const searchParams = new URLSearchParams();
     
     if (params.searchTerm) searchParams.append('searchTerm', params.searchTerm);
-    if (params.minPrice !== undefined) searchParams.append('minPrice', params.minPrice.toString());
-    if (params.maxPrice !== undefined) searchParams.append('maxPrice', params.maxPrice.toString());
     if (params.page !== undefined) searchParams.append('page', params.page.toString());
     if (params.pageSize !== undefined) searchParams.append('pageSize', params.pageSize.toString());
     if (params.sortOrder !== undefined) searchParams.append('sortOrder', params.sortOrder.toString());
 
     const queryString = searchParams.toString();
-    const endpoint = `/products/search${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/posts/search${queryString ? `?${queryString}` : ''}`;
     
-    return this.request<PaginatedResponse<Product>>(endpoint);
+    return this.request<PaginatedResponse<Post>>(endpoint);
   }
 }

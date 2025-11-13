@@ -24,32 +24,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Product } from "@/lib/api";
+import { Post } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
 
 const createColumns = (
-  onEdit?: (product: Product) => void,
-  onDeleteClick?: (product: Product) => void
-): ColumnDef<Product>[] => [
+  onEdit?: (post: Post) => void,
+  onDeleteClick?: (post: Post) => void
+): ColumnDef<Post>[] => [
   {
     accessorKey: "image",
-    header: "Hình ảnh",
+    header: "Image",
     cell: ({ row }) => {
       const image = row.getValue("image") as string;
       return (
-        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-none overflow-hidden bg-gray-100">
+        <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted/50 shadow-sm border border-border/40">
           {image ? (
             <Image
               src={image}
-              alt="Product"
+              alt="Post"
               className="w-full h-full object-cover"
-              width={48}
-              height={48}
+              width={56}
+              height={56}
               unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground/50 text-xs font-medium">
               No Image
             </div>
           )}
@@ -60,12 +60,12 @@ const createColumns = (
   },
   {
     accessorKey: "name",
-    header: "Tên sách",
+    header: "Name",
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
       return (
         <div 
-          className="font-medium max-w-[120px] sm:max-w-[200px] truncate cursor-help"
+          className="font-semibold text-foreground max-w-[200px] truncate cursor-help"
           title={name}
         >
           {name}
@@ -75,12 +75,12 @@ const createColumns = (
   },
   {
     accessorKey: "description",
-    header: "Mô tả",
+    header: "Description",
     cell: ({ row }) => {
       const description = row.getValue("description") as string;
       return (
         <div 
-          className="max-w-[100px] sm:max-w-[300px] truncate text-xs sm:text-sm text-muted-foreground cursor-help"
+          className="max-w-[300px] truncate text-sm text-muted-foreground/80 cursor-help leading-relaxed"
           title={description}
         >
           {description}
@@ -90,53 +90,41 @@ const createColumns = (
     enableSorting: false,
   },
   {
-    accessorKey: "price",
-    header: "Giá",
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-      }).format(price);
-      return <div className="font-medium text-xs sm:text-sm">{formatted}</div>;
-    },
-  },
-  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const product = row.original;
+      const post = row.original;
 
       return (
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
             size="sm"
             asChild
-            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-green-600 border-green-600 hover:bg-green-50"
+            className="h-9 px-3 text-xs font-medium border-border/60 hover:bg-green-50/50 hover:border-green-300/50 hover:text-green-700"
           >
-            <Link href={`/products/${product.id}`}>
-              <Eye className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Xem</span>
+            <Link href={`/posts/${post.id}`}>
+              <Eye className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">View</span>
             </Link>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-blue-600 border-blue-600 hover:bg-blue-50"
-            onClick={() => onEdit?.(product)}
+            className="h-9 px-3 text-xs font-medium border-border/60 hover:bg-blue-50/50 hover:border-blue-300/50 hover:text-blue-700"
+            onClick={() => onEdit?.(post)}
           >
-            <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Sửa</span>
+            <Edit className="h-3.5 w-3.5 mr-1.5" />
+            <span className="hidden sm:inline">Edit</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="h-6 sm:h-8 px-1 sm:px-2 text-xs font-medium text-red-600 border-red-600 hover:bg-red-50"
-            onClick={() => onDeleteClick?.(product)}
+            className="h-9 px-3 text-xs font-medium border-border/60 hover:bg-red-50/50 hover:border-red-300/50 hover:text-red-700"
+            onClick={() => onDeleteClick?.(post)}
           >
-            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Xóa</span>
+            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+            <span className="hidden sm:inline">Delete</span>
           </Button>
         </div>
       );
@@ -144,24 +132,24 @@ const createColumns = (
   },
 ];
 
-interface ProductTableProps {
-  data: Product[];
+interface PostTableProps {
+  data: Post[];
   loading?: boolean;
-  onEdit?: (product: Product) => void;
+  onEdit?: (post: Post) => void;
   onDelete?: (id: string) => void;
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
 }
 
-export function ProductTable({ data, loading = false, onEdit, onDelete, currentPage = 1, totalPages = 1, onPageChange }: ProductTableProps) {
+export function PostTable({ data, loading = false, onEdit, onDelete, currentPage = 1, totalPages = 1, onPageChange }: PostTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const handleDeleteClick = (product: Product) => {
+  const handleDeleteClick = (post: Post) => {
     if (onDelete) {
-      onDelete(product.id);
+      onDelete(post.id);
     }
   };
 
@@ -200,7 +188,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
                 <TableHead><Skeleton className="h-4 w-16" /></TableHead>
                 <TableHead><Skeleton className="h-4 w-20" /></TableHead>
                 <TableHead><Skeleton className="h-4 w-24" /></TableHead>
-                <TableHead><Skeleton className="h-4 w-12" /></TableHead>
                 <TableHead><Skeleton className="h-4 w-16" /></TableHead>
               </TableRow>
             </TableHeader>
@@ -210,7 +197,6 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
                   <TableCell><Skeleton className="h-12 w-12" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-48" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-8 w-24" /></TableCell>
                 </TableRow>
               ))}
@@ -224,14 +210,14 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
   return (
     <div className="w-full">
       {/* Table View for all screen sizes */}
-      <div className="rounded-md border overflow-x-auto">
+      <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm shadow-sm overflow-x-auto overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="text-xs sm:text-sm">
+                    <TableHead key={header.id} className="text-sm">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -252,7 +238,7 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-xs sm:text-sm">
+                    <TableCell key={cell.id} className="text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -267,7 +253,7 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Không có sản phẩm nào.
+                  No posts found.
                 </TableCell>
               </TableRow>
             )}
@@ -276,30 +262,29 @@ export function ProductTable({ data, loading = false, onEdit, onDelete, currentP
       </div>
       {/* Server-side Pagination */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              disabled={currentPage === 1}
-              onClick={() => onPageChange && onPageChange(currentPage - 1)}
-              className="px-4 py-2"
-            >
-              Trước
-            </Button>
-            <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-none">
-              Trang {currentPage} / {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              disabled={currentPage === totalPages}
-              onClick={() => onPageChange && onPageChange(currentPage + 1)}
-              className="px-4 py-2"
-            >
-              Sau
-            </Button>
-          </div>
+        <div className="flex justify-center items-center gap-4 mt-10">
+          <Button
+            variant="outline"
+            disabled={currentPage === 1}
+            onClick={() => onPageChange && onPageChange(currentPage - 1)}
+            className="shadow-sm"
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground font-medium">
+            Page {currentPage} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange && onPageChange(currentPage + 1)}
+            className="shadow-sm"
+          >
+            Next
+          </Button>
         </div>
       )}
     </div>
   );
 }
+

@@ -8,7 +8,7 @@ export const config = {
   
   // App Configuration
   app: {
-    name: 'Product Manager',
+    name: 'Post Manager',
     version: '1.0.0',
   },
   
